@@ -36,44 +36,6 @@
 - date-fns
 - sonner
 
-## 실행 방법
-
-### 1. 의존성 설치
-
-```bash
-npm install
-```
-
-### 2. 환경 변수 설정
-
-프로젝트 루트에 `.env` 파일을 만들고 아래 값을 채워주세요.
-
-```bash
-VITE_SUPABASE_URL=your-supabase-url
-VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-anon-key
-```
-
-예시는 [.env.example](.env.example)에 있습니다.
-
-### 3. 개발 서버 실행
-
-```bash
-npm run dev
-```
-
-### 4. 빌드
-
-```bash
-npm run build
-```
-
-## 스크립트
-
-- `npm run dev`: 개발 서버 실행
-- `npm run build`: 타입 체크 후 프로덕션 빌드
-- `npm run lint`: ESLint 실행
-- `npm run format`: Prettier 포맷 적용
-- `npm run preview`: 빌드 결과 미리보기
 
 ## 프로젝트 구조
 
