@@ -1,21 +1,99 @@
-# React + TypeScript + Vite + shadcn/ui
+# 하루,담
 
-This is a template for a new Vite project with React, TypeScript, and shadcn/ui.
+하루,담은 하루를 기록하고 정리하기 위한 개인 대시보드입니다. 로그인한 사용자가 오늘의 할 일, 반복 루틴, 일정, 메모, 즐겨찾기, 음악을 한 화면에서 관리할 수 있도록 구성되어 있습니다.
 
-## Adding components
+## 주요 기능
 
-To add components to your app, run the following command:
+- Supabase 인증 기반 회원가입, 로그인, 로그아웃
+- 캘린더 기반 일정 등록, 수정, 삭제
+- 오늘 날짜 기준 오늘의 할 일 관리
+- 반복 루틴 성격의 데일리 할 일 관리
+- 유형별 즐겨찾기 분류 및 링크 저장
+- 자동 저장 메모 작성
+- 유튜브 링크 기반 개인 음악 플레이리스트
+- 사용자별 배경 테마 색상 변경
+- 다가오는 일정 요약 카드
+- 개발자 노트 팝업 공지
+- 섹션 접기/펼치기 상태 로컬 저장
+
+## 화면 구성
+
+- 홈: 다가오는 일정, 즐겨찾기, 데일리 할 일, 오늘의 할 일, 음악, 메모를 한 번에 확인합니다.
+- 캘린더: 월별 일정 조회와 일정 CRUD를 제공합니다.
+- 인증 화면: 회원가입 및 로그인 흐름을 제공합니다.
+- 공통 UI: 플로팅 메뉴, 헤더, 사용자 드롭다운, 배경 테마 선택기를 포함합니다.
+
+## 기술 스택
+
+- React 19
+- TypeScript
+- Vite
+- React Router
+- TanStack Query
+- Supabase
+- Tailwind CSS 4
+- shadcn/ui + Radix UI
+- date-fns
+- sonner
+
+## 실행 방법
+
+### 1. 의존성 설치
 
 ```bash
-npx shadcn@latest add button
+npm install
 ```
 
-This will place the ui components in the `src/components` directory.
+### 2. 환경 변수 설정
 
-## Using components
+프로젝트 루트에 `.env` 파일을 만들고 아래 값을 채워주세요.
 
-To use the components in your app, import them as follows:
-
-```tsx
-import { Button } from "@/components/ui/button"
+```bash
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-anon-key
 ```
+
+예시는 [.env.example](.env.example)에 있습니다.
+
+### 3. 개발 서버 실행
+
+```bash
+npm run dev
+```
+
+### 4. 빌드
+
+```bash
+npm run build
+```
+
+## 스크립트
+
+- `npm run dev`: 개발 서버 실행
+- `npm run build`: 타입 체크 후 프로덕션 빌드
+- `npm run lint`: ESLint 실행
+- `npm run format`: Prettier 포맷 적용
+- `npm run preview`: 빌드 결과 미리보기
+
+## 프로젝트 구조
+
+```text
+src/
+	components/     재사용 UI 및 도메인 섹션 컴포넌트
+	constants/      고정 텍스트, 설명, 이모지
+	context/        인증 컨텍스트
+	hooks/          공통 훅
+	layout/         전역 레이아웃
+	lib/            클라이언트 유틸리티, Supabase 클라이언트
+	pages/          라우트 페이지
+	routes/         라우트 정의
+	services/       Supabase 기반 데이터 액세스 계층
+	storage/        로컬 스토리지 관련 로직
+	types/          도메인 타입 정의
+```
+
+## 참고 사항
+
+- 현재 메뉴 일부는 준비 중이며 실제 라우트가 연결되지 않았습니다.
+- Supabase 테이블과 인증 설정이 선행되어야 전체 기능이 정상 동작합니다.
+- `.env` 파일은 저장소에 포함되지 않도록 `.gitignore`에 제외 처리되어 있습니다.
