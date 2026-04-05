@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, type KeyboardEvent } from "react"
 import { ChevronDown, ChevronUp, FolderPlus, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -137,8 +137,8 @@ export default function BookmarkSection() {
 
   const badgeCount = bookmarks.length
 
-  const openCreateDialog = () => {
-    const defaultTypeId = bookmarkTypes[0]?.id ?? ""
+  const openCreateDialog = (preselectedTypeId?: string) => {
+    const defaultTypeId = preselectedTypeId ?? bookmarkTypes[0]?.id ?? ""
 
     setBookmarkForm({
       title: "",
@@ -191,6 +191,17 @@ export default function BookmarkSection() {
     setBookmarkForm(initialBookmarkForm)
   }
 
+  const handleBookmarkCreateKeyDown = (
+    event: KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (bookmarkSubmitDisabled) return
+
+    void handleCreateBookmark()
+  }
+
   const handleDeleteBookmark = async (bookmarkId: string) => {
     await deleteBookmarkMutation.mutateAsync(bookmarkId)
     toast.success("즐겨찾기가 삭제되었습니다")
@@ -241,6 +252,21 @@ export default function BookmarkSection() {
 
     setTypeForm(initialTypeForm)
     setIsTypeOpen(false)
+  }
+
+  const handleTypeCreateKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (
+      !user ||
+      createBookmarkTypeMutation.isPending ||
+      !typeForm.name.trim()
+    ) {
+      return
+    }
+
+    void handleCreateType()
   }
 
   const openBookmark = (url: string) => {
@@ -324,7 +350,7 @@ export default function BookmarkSection() {
                 </Button>
 
                 <Button
-                  onClick={openCreateDialog}
+                  onClick={() => openCreateDialog()}
                   disabled={!user || bookmarkTypes.length === 0}
                 >
                   <Plus className="mr-1 h-4 w-4" />
@@ -400,18 +426,33 @@ export default function BookmarkSection() {
                             </p>
                           </div>
 
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleDeleteType(type)
-                            }}
-                            disabled={deleteBookmarkTypeMutation.isPending}
-                            aria-label="유형 삭제"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <div className="flex shrink-0 items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                openCreateDialog(type.id)
+                              }}
+                              disabled={!user}
+                              aria-label="이 유형으로 즐겨찾기 추가"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteType(type)
+                              }}
+                              disabled={deleteBookmarkTypeMutation.isPending}
+                              aria-label="유형 삭제"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
 
                         <div className="space-y-1">
@@ -463,6 +504,7 @@ export default function BookmarkSection() {
                 onChange={(e) =>
                   handleChangeBookmarkForm("title", e.target.value)
                 }
+                onKeyDown={handleBookmarkCreateKeyDown}
                 placeholder="예: React 공식 문서"
               />
               <p className="text-right text-xs text-muted-foreground">
@@ -479,6 +521,7 @@ export default function BookmarkSection() {
                 onChange={(e) =>
                   handleChangeBookmarkForm("url", e.target.value)
                 }
+                onKeyDown={handleBookmarkCreateKeyDown}
                 placeholder="예: https://react.dev"
               />
               {urlError && (
@@ -537,6 +580,7 @@ export default function BookmarkSection() {
               maxLength={MAX_TYPE_NAME_LENGTH}
               value={typeForm.name}
               onChange={(e) => handleChangeTypeForm(e.target.value)}
+              onKeyDown={handleTypeCreateKeyDown}
               placeholder="예: 강의"
             />
             <p className="text-right text-xs text-muted-foreground">

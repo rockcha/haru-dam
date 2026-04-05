@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { ChevronDown, ChevronUp, Pencil, Plus, Trash2 } from "lucide-react"
 
 import { useAuth } from "@/hooks/useAuth"
@@ -247,6 +247,15 @@ export default function MusicSection() {
     setSelectedTrackId(createdTrack.id)
     setForm(initialForm)
     setIsCreateOpen(false)
+  }
+
+  const handleCreateKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (submitDisabled) return
+
+    void handleCreate()
   }
 
   const handleEdit = async () => {
@@ -546,6 +555,7 @@ export default function MusicSection() {
                 maxLength={MAX_TITLE_LENGTH}
                 value={form.title}
                 onChange={(e) => handleChangeForm("title", e.target.value)}
+                onKeyDown={handleCreateKeyDown}
                 placeholder="예: 공부할 때 듣는 음악"
               />
               <p className="text-right text-xs text-muted-foreground">
@@ -560,6 +570,7 @@ export default function MusicSection() {
                 maxLength={MAX_URL_LENGTH}
                 value={form.url}
                 onChange={(e) => handleChangeForm("url", e.target.value)}
+                onKeyDown={handleCreateKeyDown}
                 placeholder="예: https://www.youtube.com/watch?v=BXDSOP-Wn5c"
               />
               {urlError && (

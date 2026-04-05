@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, type KeyboardEvent } from "react"
 import { ChevronDown, ChevronUp, Pencil, Plus, Trash2 } from "lucide-react"
 
 import {
@@ -119,6 +119,15 @@ export default function DailyTaskSection() {
 
     setIsCreateOpen(false)
     setForm(initialForm)
+  }
+
+  const handleCreateKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (createMutation.isPending || !form.content.trim()) return
+
+    void handleCreate()
   }
 
   const handleEdit = async () => {
@@ -351,6 +360,7 @@ export default function DailyTaskSection() {
                 maxLength={MAX_CONTENT_LENGTH}
                 value={form.content}
                 onChange={(e) => handleChangeForm("content", e.target.value)}
+                onKeyDown={handleCreateKeyDown}
                 placeholder="예: 물 2L 마시기"
               />
               <p className="text-right text-xs text-muted-foreground">

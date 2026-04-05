@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo, useState, type KeyboardEvent } from "react"
 import {
   addDays,
   addMonths,
@@ -218,6 +218,15 @@ export default function Schedule() {
     setForm(initialForm)
   }
 
+  const handleCreateKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (createMutation.isPending || !form.title.trim() || !form.date) return
+
+    void handleCreate()
+  }
+
   const handleUpdate = async () => {
     if (!selectedSchedule) return
     if (!form.title.trim()) return
@@ -383,6 +392,7 @@ export default function Schedule() {
                 maxLength={TITLE_MAX_LENGTH}
                 value={form.title}
                 onChange={(e) => handleChangeForm("title", e.target.value)}
+                onKeyDown={handleCreateKeyDown}
                 placeholder="예: 운동, 미팅, 과제 제출"
               />
               <p className="text-right text-xs text-muted-foreground">
@@ -406,6 +416,7 @@ export default function Schedule() {
                   type="time"
                   value={form.time}
                   onChange={(e) => handleChangeForm("time", e.target.value)}
+                  onKeyDown={handleCreateKeyDown}
                 />
               </div>
             </div>
