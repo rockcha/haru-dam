@@ -1,14 +1,8 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import {
-  ChevronDown,
-  ChevronUp,
-  FolderPlus,
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react"
+import { ChevronDown, ChevronUp, FolderPlus, Plus, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { useAuth } from "@/hooks/useAuth"
 import {
@@ -17,11 +11,21 @@ import {
   useCreateBookmark,
   useCreateBookmarkType,
   useDeleteBookmark,
-  useUpdateBookmark,
+  useDeleteBookmarkType,
 } from "@/services/bookmarks"
 import { SECTION_DESCRIPTIONS } from "@/constants/sectionDescription"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import {
   Dialog,
   DialogContent,
@@ -39,7 +43,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import type { BookmarkWithType } from "@/types/bookmarks"
+import type { BookmarkType } from "@/types/bookmarks"
 
 import { useSectionCollapse } from "@/hooks/useSectionCollapse"
 type BookmarkFormState = {
@@ -55,8 +59,6 @@ type TypeFormState = {
 const MAX_TITLE_LENGTH = 20
 const MAX_URL_LENGTH = 300
 const MAX_TYPE_NAME_LENGTH = 20
-
-const ALL_FILTER_VALUE = "all"
 
 const initialBookmarkForm: BookmarkFormState = {
   title: "",
@@ -90,32 +92,47 @@ export default function BookmarkSection() {
   const { isCollapsed, toggleCollapsed } = useSectionCollapse("bookmark")
 
   const [isCreateOpen, setIsCreateOpen] = useState(false)
-  const [isEditOpen, setIsEditOpen] = useState(false)
   const [isTypeOpen, setIsTypeOpen] = useState(false)
+  const [isTypeBookmarksOpen, setIsTypeBookmarksOpen] = useState(false)
+  const [isDeleteTypeDialogOpen, setIsDeleteTypeDialogOpen] = useState(false)
 
   const [bookmarkForm, setBookmarkForm] =
     useState<BookmarkFormState>(initialBookmarkForm)
   const [typeForm, setTypeForm] = useState<TypeFormState>(initialTypeForm)
 
-  const [editingBookmarkId, setEditingBookmarkId] = useState<string | null>(
-    null
-  )
-  const [filterTypeId, setFilterTypeId] = useState<string>(ALL_FILTER_VALUE)
+  const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null)
+  const [deletingType, setDeletingType] = useState<BookmarkType | null>(null)
 
   const { data: bookmarks = [], isLoading } = useBookmarksWithType()
   const { data: bookmarkTypes = [] } = useBookmarkTypes()
 
   const createBookmarkMutation = useCreateBookmark()
-  const updateBookmarkMutation = useUpdateBookmark()
   const deleteBookmarkMutation = useDeleteBookmark()
   const createBookmarkTypeMutation = useCreateBookmarkType()
+  const deleteBookmarkTypeMutation = useDeleteBookmarkType()
 
-  const filteredBookmarks = useMemo(() => {
-    if (filterTypeId === ALL_FILTER_VALUE) return bookmarks
-    return bookmarks.filter((bookmark) => bookmark.type_id === filterTypeId)
-  }, [bookmarks, filterTypeId])
+  const bookmarksByType = useMemo(() => {
+    return bookmarks.reduce<Record<string, typeof bookmarks>>(
+      (acc, bookmark) => {
+        const current = acc[bookmark.type_id] ?? []
+        acc[bookmark.type_id] = [...current, bookmark]
+        return acc
+      },
+      {}
+    )
+  }, [bookmarks])
 
-  const badgeCount = filteredBookmarks.length
+  const selectedType = useMemo(() => {
+    if (!selectedTypeId) return null
+    return bookmarkTypes.find((type) => type.id === selectedTypeId) ?? null
+  }, [bookmarkTypes, selectedTypeId])
+
+  const selectedTypeBookmarks = useMemo(() => {
+    if (!selectedTypeId) return []
+    return bookmarksByType[selectedTypeId] ?? []
+  }, [bookmarksByType, selectedTypeId])
+
+  const badgeCount = bookmarks.length
 
   const openCreateDialog = () => {
     const defaultTypeId = bookmarkTypes[0]?.id ?? ""
@@ -126,22 +143,6 @@ export default function BookmarkSection() {
       type_id: defaultTypeId,
     })
     setIsCreateOpen(true)
-  }
-
-  const openEditDialog = (bookmark: BookmarkWithType) => {
-    setEditingBookmarkId(bookmark.id)
-    setBookmarkForm({
-      title: bookmark.title,
-      url: bookmark.url,
-      type_id: bookmark.type_id,
-    })
-    setIsEditOpen(true)
-  }
-
-  const closeEditDialog = () => {
-    setEditingBookmarkId(null)
-    setBookmarkForm(initialBookmarkForm)
-    setIsEditOpen(false)
   }
 
   const handleChangeBookmarkForm = (
@@ -181,30 +182,41 @@ export default function BookmarkSection() {
       type_id: typeId,
     })
 
+    toast.success("즐겨찾기가 추가되었습니다")
+
     setIsCreateOpen(false)
     setBookmarkForm(initialBookmarkForm)
   }
 
-  const handleEditBookmark = async () => {
-    const trimmedTitle = bookmarkForm.title.trim()
-    const normalizedUrl = normalizeUrl(bookmarkForm.url)
-    const typeId = bookmarkForm.type_id
-
-    if (!editingBookmarkId || !trimmedTitle || !normalizedUrl || !typeId) return
-    if (!isValidUrl(normalizedUrl)) return
-
-    await updateBookmarkMutation.mutateAsync({
-      id: editingBookmarkId,
-      title: trimmedTitle,
-      url: normalizedUrl,
-      type_id: typeId,
-    })
-
-    closeEditDialog()
-  }
-
   const handleDeleteBookmark = async (bookmarkId: string) => {
     await deleteBookmarkMutation.mutateAsync(bookmarkId)
+    toast.success("즐겨찾기가 삭제되었습니다")
+  }
+
+  const handleOpenTypeBookmarks = (typeId: string) => {
+    setSelectedTypeId(typeId)
+    setIsTypeBookmarksOpen(true)
+  }
+
+  const handleDeleteType = async (type: BookmarkType) => {
+    if (!user) return
+    setDeletingType(type)
+    setIsDeleteTypeDialogOpen(true)
+  }
+
+  const confirmDeleteType = async () => {
+    if (!deletingType) return
+
+    await deleteBookmarkTypeMutation.mutateAsync(deletingType.id)
+    toast.success("유형이 삭제되었습니다")
+
+    if (selectedTypeId === deletingType.id) {
+      setIsTypeBookmarksOpen(false)
+      setSelectedTypeId(null)
+    }
+
+    setIsDeleteTypeDialogOpen(false)
+    setDeletingType(null)
   }
 
   const handleCreateType = async () => {
@@ -216,6 +228,8 @@ export default function BookmarkSection() {
     const createdType = await createBookmarkTypeMutation.mutateAsync({
       name: trimmedName,
     })
+
+    toast.success("유형이 추가되었습니다")
 
     setBookmarkForm((prev) => ({
       ...prev,
@@ -236,7 +250,6 @@ export default function BookmarkSection() {
   const bookmarkSubmitDisabled =
     !user ||
     createBookmarkMutation.isPending ||
-    updateBookmarkMutation.isPending ||
     titleError ||
     !bookmarkForm.url.trim() ||
     urlError ||
@@ -295,51 +308,32 @@ export default function BookmarkSection() {
 
           {!isCollapsed && (
             <div className="flex w-full flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-                <div className="w-full">
-                  <NativeSelect
-                    value={filterTypeId}
-                    onChange={(e) => setFilterTypeId(e.target.value)}
-                    aria-label="즐겨찾기 유형 필터"
-                  >
-                    <NativeSelectOption value={ALL_FILTER_VALUE}>
-                      전체
-                    </NativeSelectOption>
-                    {bookmarkTypes.map((type) => (
-                      <NativeSelectOption key={type.id} value={type.id}>
-                        {type.name}
-                      </NativeSelectOption>
-                    ))}
-                  </NativeSelect>
-                </div>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsTypeOpen(true)}
+                  className="sm:w-fit"
+                  disabled={!user}
+                >
+                  <FolderPlus className="mr-1 h-4 w-4" />
+                  유형 추가
+                </Button>
 
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setIsTypeOpen(true)}
-                    className="sm:w-fit"
-                    disabled={!user}
-                  >
-                    <FolderPlus className="mr-1 h-4 w-4" />
-                    유형 추가
-                  </Button>
-
-                  <Button
-                    onClick={openCreateDialog}
-                    disabled={!user || bookmarkTypes.length === 0}
-                  >
-                    <Plus className="mr-1 h-4 w-4" />
-                    즐겨찾기 추가
-                  </Button>
-                </div>
+                <Button
+                  onClick={openCreateDialog}
+                  disabled={!user || bookmarkTypes.length === 0}
+                >
+                  <Plus className="mr-1 h-4 w-4" />
+                  즐겨찾기 추가
+                </Button>
               </div>
             </div>
           )}
         </CardHeader>
 
         {!isCollapsed && (
-          <CardContent className="space-y-4">
+          <CardContent className="min-h-[23rem] space-y-4">
             {!user ? (
               <div className="relative rounded-xl border border-dashed border-emerald-200 bg-emerald-50/40 py-14">
                 <p className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center text-lg text-muted-foreground">
@@ -356,66 +350,72 @@ export default function BookmarkSection() {
               <div className="text-sm text-muted-foreground">
                 즐겨찾기를 불러오는 중...
               </div>
-            ) : filteredBookmarks.length === 0 ? (
-              <div className="relative rounded-xl border border-dashed border-emerald-200 bg-emerald-50/40 py-14">
-                <p className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center text-lg text-muted-foreground">
-                  아무것도 없어요...🍃
-                </p>
-              </div>
             ) : (
-              <ScrollArea className="h-35 pr-2">
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {filteredBookmarks.map((bookmark) => (
-                    <div
-                      key={bookmark.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => openBookmark(bookmark.url)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault()
-                          openBookmark(bookmark.url)
-                        }
-                      }}
-                      className="cursor-pointer rounded-lg border border-border bg-white p-4 shadow-sm transition hover:bg-emerald-50/50"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="line-clamp-2 text-left text-sm font-semibold text-foreground sm:text-base">
-                            🔗 {bookmark.title}
-                          </p>
-                        </div>
-
-                        <div className="flex shrink-0 items-center gap-1">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              openEditDialog(bookmark)
-                            }}
-                            disabled={updateBookmarkMutation.isPending}
-                            aria-label="즐겨찾기 수정"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
+              <ScrollArea className="h-[23rem] rounded-xl border p-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {bookmarkTypes.map((type) => {
+                    const typeBookmarks = bookmarksByType[type.id] ?? []
+                    return (
+                      <div
+                        key={type.id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleOpenTypeBookmarks(type.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault()
+                            handleOpenTypeBookmarks(type.id)
+                          }
+                        }}
+                        className="cursor-pointer rounded-xl border bg-white p-4 shadow-sm transition hover:bg-emerald-50/40"
+                      >
+                        <div className="mb-3 flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="line-clamp-1 text-base font-semibold text-foreground">
+                              📁 {type.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              즐겨찾기 {typeBookmarks.length}개
+                            </p>
+                          </div>
 
                           <Button
                             variant="destructive"
                             size="icon"
                             onClick={(e) => {
                               e.stopPropagation()
-                              handleDeleteBookmark(bookmark.id)
+                              handleDeleteType(type)
                             }}
-                            disabled={deleteBookmarkMutation.isPending}
-                            aria-label="즐겨찾기 삭제"
+                            disabled={deleteBookmarkTypeMutation.isPending}
+                            aria-label="유형 삭제"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
+
+                        <div className="space-y-1">
+                          {typeBookmarks.slice(0, 3).map((bookmark) => (
+                            <p
+                              key={bookmark.id}
+                              className="line-clamp-1 text-sm text-muted-foreground"
+                            >
+                              🔗 {bookmark.title}
+                            </p>
+                          ))}
+                          {typeBookmarks.length === 0 && (
+                            <p className="text-sm text-muted-foreground">
+                              아무것도 없어요
+                            </p>
+                          )}
+                          {typeBookmarks.length > 3 && (
+                            <p className="text-xs text-muted-foreground">
+                              외 {typeBookmarks.length - 3}개 더 보기
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </ScrollArea>
             )}
@@ -500,83 +500,6 @@ export default function BookmarkSection() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>즐겨찾기 수정</DialogTitle>
-            <DialogDescription>
-              제목, 링크, 유형을 원하는 값으로 변경해보세요
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-2">
-            <div className="grid gap-2">
-              <Label htmlFor="edit-bookmark-title">제목</Label>
-              <Input
-                id="edit-bookmark-title"
-                maxLength={MAX_TITLE_LENGTH}
-                value={bookmarkForm.title}
-                onChange={(e) =>
-                  handleChangeBookmarkForm("title", e.target.value)
-                }
-                placeholder="예: React 공식 문서"
-              />
-              <p className="text-right text-xs text-muted-foreground">
-                {bookmarkForm.title.length}/{MAX_TITLE_LENGTH}
-              </p>
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="edit-bookmark-url">링크</Label>
-              <Input
-                id="edit-bookmark-url"
-                maxLength={MAX_URL_LENGTH}
-                value={bookmarkForm.url}
-                onChange={(e) =>
-                  handleChangeBookmarkForm("url", e.target.value)
-                }
-                placeholder="예: https://react.dev"
-              />
-              {urlError && (
-                <p className="text-xs text-red-500">
-                  올바른 링크 형식으로 입력해주세요
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="edit-bookmark-type">유형</Label>
-              <NativeSelect
-                id="edit-bookmark-type"
-                value={bookmarkForm.type_id}
-                onChange={(e) =>
-                  handleChangeBookmarkForm("type_id", e.target.value)
-                }
-              >
-                <NativeSelectOption value="">유형 선택</NativeSelectOption>
-                {bookmarkTypes.map((type) => (
-                  <NativeSelectOption key={type.id} value={type.id}>
-                    {type.name}
-                  </NativeSelectOption>
-                ))}
-              </NativeSelect>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={closeEditDialog}>
-              취소
-            </Button>
-            <Button
-              onClick={handleEditBookmark}
-              disabled={bookmarkSubmitDisabled}
-            >
-              {updateBookmarkMutation.isPending ? "수정 중..." : "수정하기"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={isTypeOpen} onOpenChange={setIsTypeOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
@@ -617,6 +540,95 @@ export default function BookmarkSection() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={isTypeBookmarksOpen} onOpenChange={setIsTypeBookmarksOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl">
+              📁 {selectedType?.name ?? "유형"} 즐겨찾기
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedTypeBookmarks.length === 0 ? (
+            <div className="py-10 text-center text-muted-foreground">
+              등록된 즐겨찾기가 없어요
+            </div>
+          ) : (
+            <ScrollArea className="h-80 pr-2">
+              <div className="space-y-1">
+                {selectedTypeBookmarks.map((bookmark) => (
+                  <div
+                    key={bookmark.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => openBookmark(bookmark.url)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        openBookmark(bookmark.url)
+                      }
+                    }}
+                    className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-border bg-white p-3 transition hover:bg-emerald-50/40"
+                  >
+                    <p className="line-clamp-1 text-sm font-medium text-foreground sm:text-base">
+                      🔗 {bookmark.title}
+                    </p>
+
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteBookmark(bookmark.id)
+                      }}
+                      disabled={deleteBookmarkMutation.isPending}
+                      aria-label="즐겨찾기 삭제"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsTypeBookmarksOpen(false)}
+            >
+              닫기
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={isDeleteTypeDialogOpen}
+        onOpenChange={(open) => {
+          setIsDeleteTypeDialogOpen(open)
+          if (!open) {
+            setDeletingType(null)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>유형을 삭제하시겠습니까?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deletingType
+                ? `"${deletingType.name}" 유형과 해당 즐겨찾기가 함께 삭제됩니다.`
+                : "선택한 유형과 해당 즐겨찾기가 함께 삭제됩니다."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteType}>
+              삭제
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

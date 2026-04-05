@@ -6,7 +6,7 @@ import { ChevronDown, ChevronUp, Pencil, Plus, Trash2 } from "lucide-react"
 import {
   useCreateTodayTask,
   useDeleteTodayTask,
-  useTodayTasksForToday,
+  useTodayTasks,
   useUpdateTodayTask,
 } from "@/services/today-task"
 import { SECTION_DESCRIPTIONS } from "@/constants/sectionDescription"
@@ -68,7 +68,7 @@ export default function TodayTaskSection() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterType>("all")
 
-  const { data: tasks = [], isLoading } = useTodayTasksForToday()
+  const { data: tasks = [], isLoading } = useTodayTasks()
   const createMutation = useCreateTodayTask()
   const updateMutation = useUpdateTodayTask()
   const deleteMutation = useDeleteTodayTask()

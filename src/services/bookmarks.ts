@@ -93,6 +93,14 @@ export const updateBookmarkType = async (
 export const deleteBookmarkType = async (id: string): Promise<void> => {
   const user = await getRequiredUser()
 
+  const { error: bookmarksDeleteError } = await supabase
+    .from("bookmarks")
+    .delete()
+    .eq("type_id", id)
+    .eq("user_id", user.id)
+
+  if (bookmarksDeleteError) throw bookmarksDeleteError
+
   const { error } = await supabase
     .from("bookmark_types")
     .delete()
