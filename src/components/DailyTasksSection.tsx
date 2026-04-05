@@ -78,12 +78,7 @@ export default function DailyTaskSection() {
     return tasks
   }, [tasks, filter])
 
-  const badgeCount =
-    filter === "all"
-      ? tasks.length
-      : filter === "done"
-        ? tasks.filter((task) => task.is_done).length
-        : tasks.filter((task) => !task.is_done).length
+  const badgeCount = tasks.filter((task) => !task.is_done).length
 
   const openCreateDialog = () => {
     setForm(initialForm)
@@ -185,7 +180,7 @@ export default function DailyTaskSection() {
 
                 {isCollapsed && (
                   <span className="inline-flex min-w-8 items-center justify-center rounded-md bg-red-500 px-2 py-1 text-xs font-semibold text-white shadow-sm">
-                    {badgeCount}+
+                    {badgeCount}
                   </span>
                 )}
               </div>

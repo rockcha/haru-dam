@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { MousePointerClick, Keyboard } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
 
-const INTRO_SEEN_KEY = "harudam-intro-seen"
+const INTRO_PASSED_KEY = "harudam-intro-passed"
 
 export function Intro() {
   const navigate = useNavigate()
@@ -12,7 +12,7 @@ export function Intro() {
   const goNext = useCallback(() => {
     if (isLoading) return
 
-    window.localStorage.setItem(INTRO_SEEN_KEY, "true")
+    window.sessionStorage.setItem(INTRO_PASSED_KEY, "true")
     navigate(isAuthenticated ? "/" : "/signin", { replace: true })
   }, [isAuthenticated, isLoading, navigate])
 
