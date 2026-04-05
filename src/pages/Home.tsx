@@ -13,13 +13,16 @@ export function Home() {
       <section>
         <BookmarkSection />
       </section>
-      <section className="flex flex-col gap-2 md:flex-row">
-        <DailyTaskSection />
-        <TodayTaskSection />
-      </section>
-      <section className="flex flex-col gap-2 md:flex-row">
-        <MusicSection />
-        <MemoSection />
+      <section className="grid grid-cols-1 gap-2 md:grid-cols-2 md:items-start">
+        <div className="flex flex-col gap-2">
+          <DailyTaskSection />
+          <MusicSection />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <TodayTaskSection />
+          <MemoSection />
+        </div>
       </section>
     </div>
   )

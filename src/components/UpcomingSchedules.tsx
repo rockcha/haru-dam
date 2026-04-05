@@ -46,20 +46,6 @@ export function UpcomingSchedules() {
       })
   }, [schedules])
 
-  if (!isLoading && upcomingSchedules.length === 0) {
-    return (
-      <Card className="border-border/60 shadow-sm">
-        <CardContent className="flex flex-col items-center justify-center gap-4 py-10">
-          <p className="text-center text-sm text-muted-foreground">
-            🌿 다가오는 일정이 없어요
-          </p>
-
-          <Button onClick={() => navigate("/schedule")}>추가하러 가기</Button>
-        </CardContent>
-      </Card>
-    )
-  }
-
   return (
     <Card className="relative overflow-hidden border-border/60 bg-white shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -111,9 +97,13 @@ export function UpcomingSchedules() {
       </CardHeader>
 
       {!isCollapsed && (
-        <CardContent className="p-0">
+        <CardContent className="space-y-4">
+          <div className="flex justify-start">
+            <Button onClick={() => navigate("/schedule")}>추가하러 가기</Button>
+          </div>
+
           {isLoading ? (
-            <div className="flex gap-2 overflow-hidden p-3">
+            <div className="flex gap-2 overflow-hidden">
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
@@ -128,6 +118,12 @@ export function UpcomingSchedules() {
                   </div>
                 </div>
               ))}
+            </div>
+          ) : upcomingSchedules.length === 0 ? (
+            <div className="relative rounded-xl border border-dashed border-emerald-200 bg-emerald-50/40 py-14">
+              <p className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center text-lg text-muted-foreground">
+                🌿 다가오는 일정이 없어요
+              </p>
             </div>
           ) : (
             <Carousel

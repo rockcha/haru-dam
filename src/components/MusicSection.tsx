@@ -407,7 +407,7 @@ export default function MusicSection() {
           className={cn(
             "space-y-4 overflow-hidden transition-all duration-300",
             isCollapsed
-              ? "max-h-[1200px] pt-0 opacity-100"
+              ? "max-h-0 px-0 py-0 opacity-0"
               : "max-h-[1200px] opacity-100"
           )}
         >

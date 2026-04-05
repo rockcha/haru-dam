@@ -243,7 +243,7 @@ export default function MemoSection() {
                   ))}
                 </div>
 
-                <div className="rounded-2xl border border-border bg-white p-3 shadow-sm">
+                <div className="rounded-lg border border-border bg-white p-3 shadow-sm">
                   <Textarea
                     ref={textareaRef}
                     value={content}
