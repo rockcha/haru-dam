@@ -22,6 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import { useSectionCollapse } from "@/hooks/useSectionCollapse"
 
@@ -45,19 +46,7 @@ export function UpcomingSchedules() {
       })
   }, [schedules])
 
-  if (isLoading) {
-    return (
-      <Card className="border-border/60 shadow-sm">
-        <CardContent className="py-10">
-          <p className="text-center text-sm text-muted-foreground">
-            ⏳ 일정을 불러오는 중...
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  if (upcomingSchedules.length === 0) {
+  if (!isLoading && upcomingSchedules.length === 0) {
     return (
       <Card className="border-border/60 shadow-sm">
         <CardContent className="flex flex-col items-center justify-center gap-4 py-10">
@@ -123,43 +112,62 @@ export function UpcomingSchedules() {
 
       {!isCollapsed && (
         <CardContent className="p-0">
-          <Carousel
-            opts={{
-              align: "start",
-              dragFree: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="m-1 cursor-grab active:cursor-grabbing">
-              {upcomingSchedules.map((schedule, index) => {
-                const remainingMinutes = getRemainingMinutes(schedule)
+          {isLoading ? (
+            <div className="flex gap-2 overflow-hidden p-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="basis-[200px] rounded-lg border border-border/60 bg-background p-5 md:basis-[250px]"
+                >
+                  <div className="space-y-3">
+                    <Skeleton className="h-5 w-11/12" />
+                    <Skeleton className="h-5 w-4/6" />
+                  </div>
+                  <div className="mt-4 border-t border-border/60 pt-4">
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Carousel
+              opts={{
+                align: "start",
+                dragFree: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="m-1 cursor-grab active:cursor-grabbing">
+                {upcomingSchedules.map((schedule, index) => {
+                  const remainingMinutes = getRemainingMinutes(schedule)
 
-                return (
-                  <CarouselItem
-                    key={schedule.id}
-                    className="basis-[200px] pl-2 md:basis-[250px]"
-                  >
-                    <div className="flex h-full flex-col justify-between rounded-lg border border-border/60 bg-background p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
-                      <div className="space-y-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <h3 className="ellipsis-1 line-clamp-2 text-base leading-snug font-semibold text-foreground">
-                            {index === 0 ? "🔥 " : "📌 "}
-                            {schedule.title}
-                          </h3>
+                  return (
+                    <CarouselItem
+                      key={schedule.id}
+                      className="basis-[200px] pl-2 md:basis-[250px]"
+                    >
+                      <div className="flex h-full flex-col justify-between rounded-lg border border-border/60 bg-background p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+                        <div className="space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 className="ellipsis-1 line-clamp-2 text-base leading-snug font-semibold text-foreground">
+                              {index === 0 ? "🔥 " : "📌 "}
+                              {schedule.title}
+                            </h3>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 border-t border-border/60 pt-4">
+                          <p className="flex items-center gap-2 text-sm font-medium text-foreground">
+                            ⏳ {formatRemainingTime(remainingMinutes)} 남았어요!
+                          </p>
                         </div>
                       </div>
-
-                      <div className="mt-4 border-t border-border/60 pt-4">
-                        <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-                          ⏳ {formatRemainingTime(remainingMinutes)} 남았어요!
-                        </p>
-                      </div>
-                    </div>
-                  </CarouselItem>
-                )
-              })}
-            </CarouselContent>
-          </Carousel>
+                    </CarouselItem>
+                  )
+                })}
+              </CarouselContent>
+            </Carousel>
+          )}
         </CardContent>
       )}
     </Card>

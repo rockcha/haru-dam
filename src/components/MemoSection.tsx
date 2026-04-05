@@ -16,6 +16,7 @@ import { MEMO_EMOJIS } from "@/constants/emojis"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Tooltip,
@@ -210,9 +211,22 @@ export default function MemoSection() {
                 </p>
               </div>
             ) : isLoading ? (
-              <div className="text-sm text-muted-foreground">
-                메모를 불러오는 중...
-              </div>
+              <>
+                <div className="flex flex-wrap gap-2 overflow-x-auto pb-1">
+                  {Array.from({ length: 8 }).map((_, index) => (
+                    <Skeleton key={index} className="h-9 w-9 rounded-md" />
+                  ))}
+                </div>
+
+                <div className="rounded-2xl border border-border bg-white p-3 shadow-sm">
+                  <Skeleton className="h-48 w-full rounded-xl" />
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+              </>
             ) : (
               <>
                 <div className="flex flex-wrap gap-2 overflow-x-auto pb-1">

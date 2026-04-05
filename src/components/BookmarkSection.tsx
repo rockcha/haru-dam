@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
   TooltipContent,
@@ -104,7 +105,9 @@ export default function BookmarkSection() {
   const [deletingType, setDeletingType] = useState<BookmarkType | null>(null)
 
   const { data: bookmarks = [], isLoading } = useBookmarksWithType()
-  const { data: bookmarkTypes = [] } = useBookmarkTypes()
+  const { data: bookmarkTypes = [], isLoading: isBookmarkTypesLoading } =
+    useBookmarkTypes()
+  const isBookmarkLoading = isLoading || isBookmarkTypesLoading
 
   const createBookmarkMutation = useCreateBookmark()
   const deleteBookmarkMutation = useDeleteBookmark()
@@ -340,15 +343,33 @@ export default function BookmarkSection() {
                   로그인 후 즐겨찾기를 사용할 수 있어요 🔐
                 </p>
               </div>
+            ) : isBookmarkLoading ? (
+              <ScrollArea className="h-[23rem] rounded-xl border p-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="rounded-xl border bg-white p-4">
+                      <div className="mb-3 flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1 space-y-2">
+                          <Skeleton className="h-5 w-28" />
+                          <Skeleton className="h-3 w-20" />
+                        </div>
+                        <Skeleton className="h-9 w-9" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-4/5" />
+                        <Skeleton className="h-4 w-3/5" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
             ) : bookmarkTypes.length === 0 ? (
               <div className="relative rounded-xl border border-dashed border-emerald-200 bg-emerald-50/40 py-14">
                 <p className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center text-lg text-muted-foreground">
                   먼저 유형 하나를 만들어주세요 🌿
                 </p>
-              </div>
-            ) : isLoading ? (
-              <div className="text-sm text-muted-foreground">
-                즐겨찾기를 불러오는 중...
               </div>
             ) : (
               <ScrollArea className="h-[23rem] rounded-xl border p-3">

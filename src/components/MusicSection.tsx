@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
   TooltipContent,
@@ -423,8 +424,22 @@ export default function MusicSection() {
                 </p>
               </div>
             ) : isLoading ? (
-              <div className="text-sm text-muted-foreground">
-                음악 목록을 불러오는 중...
+              <div className="space-y-4">
+                <div className="flex w-full flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="w-full p-2 md:flex-1">
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Skeleton className="h-10 w-24" />
+                    <Skeleton className="h-10 w-20" />
+                    <Skeleton className="h-10 w-20" />
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-2xl border border-emerald-100 bg-white p-3">
+                  <Skeleton className="aspect-video w-full rounded-xl" />
+                </div>
               </div>
             ) : tracks.length === 0 ? (
               <div className="space-y-3">

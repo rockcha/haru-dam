@@ -25,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Tooltip,
@@ -259,8 +260,20 @@ export default function TodayTaskSection() {
           <CardContent className="mx-5 rounded-xl border p-2">
             <ScrollArea className="h-80 pr-3">
               {isLoading ? (
-                <div className="text-sm text-muted-foreground">
-                  오늘 할 일을 불러오는 중...
+                <div className="space-y-2 p-1">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 rounded-lg border p-4"
+                    >
+                      <Skeleton className="h-6 w-6 rounded-sm" />
+                      <Skeleton className="h-4 flex-1" />
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-9 w-9" />
+                        <Skeleton className="h-9 w-9" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : filteredTasks.length === 0 ? (
                 <div className="relative h-72">
