@@ -1,23 +1,24 @@
 import type { RouteObject } from "react-router-dom"
-import Home from "@/pages/Home"
 import SignUp from "@/pages/SignUp"
 import SignIn from "@/pages/SignIn"
 import Schedule from "@/pages/Schedule"
 import NotFound from "@/pages/NotFound"
+import Intro from "@/pages/Intro"
+import RootEntry from "@/pages/RootEntry"
 import GlobalLayout from "@/layout/GlobalLayout"
 import { PrivateRoute } from "@/components/PrivateRoute"
 
 export const routes: RouteObject[] = [
   {
+    path: "/intro",
+    element: <Intro />,
+  },
+  {
     element: <GlobalLayout />,
     children: [
       {
         path: "/",
-        element: (
-          <PrivateRoute>
-            <Home />
-          </PrivateRoute>
-        ),
+        element: <RootEntry />,
       },
       {
         path: "/signup",

@@ -5,7 +5,7 @@ export function NotFound() {
   const navigate = useNavigate()
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-background px-6 py-10">
+    <div className="app-intro-background flex min-h-svh items-center justify-center px-6 py-10">
       <div className="flex w-full max-w-md flex-col items-center text-center">
         <div>
           <p className="text-6xl font-semibold tracking-tight text-foreground">

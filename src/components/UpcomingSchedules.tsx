@@ -120,9 +120,9 @@ export function UpcomingSchedules() {
               ))}
             </div>
           ) : upcomingSchedules.length === 0 ? (
-            <div className="relative rounded-xl border border-dashed border-emerald-200 bg-emerald-50/40 py-14">
-              <p className="absolute top-1/2 left-1/2 w-full -translate-x-1/2 -translate-y-1/2 text-center text-lg text-muted-foreground">
-                🌿 다가오는 일정이 없어요
+            <div className="flex min-h-64 items-center justify-center rounded-xl border-2 border-dashed border-emerald-600/80 bg-emerald-50/70 px-4">
+              <p className="text-center text-lg font-medium text-emerald-900/70">
+                여기엔 아무것도 없네요..🥲
               </p>
             </div>
           ) : (

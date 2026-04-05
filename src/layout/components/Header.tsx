@@ -18,24 +18,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Check, ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
 import { toast } from "sonner"
-import {
-  useMyBgTheme,
-  useThemeColors,
-  useUpdateMyBgTheme,
-} from "@/services/bg-theme"
+// import {
+//   useMyBgTheme,
+//   useThemeColors,
+//   useUpdateMyBgTheme,
+// } from "@/services/bg-theme"
 
 const Header = () => {
   const navigate = useNavigate()
   const { user, isAuthenticated, signOut } = useAuth()
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
 
-  const { data: themeColors = [] } = useThemeColors()
-  const { data: myBgTheme } = useMyBgTheme()
-  const { mutate: updateMyBgTheme, isPending: isThemeUpdating } =
-    useUpdateMyBgTheme()
+  // const { data: themeColors = [] } = useThemeColors()
+  // const { data: myBgTheme } = useMyBgTheme()
+  // const { mutate: updateMyBgTheme, isPending: isThemeUpdating } =
+  //   useUpdateMyBgTheme()
 
   const displayName = user?.name || user?.email || "사용자"
 
@@ -51,10 +51,10 @@ const Header = () => {
     }
   }
 
-  const handleThemeChange = (colorId: number) => {
-    if (myBgTheme?.color_id === colorId || isThemeUpdating) return
-    updateMyBgTheme({ color_id: colorId })
-  }
+  // const handleThemeChange = (colorId: number) => {
+  //   if (myBgTheme?.color_id === colorId || isThemeUpdating) return
+  //   updateMyBgTheme({ color_id: colorId })
+  // }
 
   return (
     <>
@@ -80,6 +80,8 @@ const Header = () => {
         <div className="flex items-center">
           {isAuthenticated ? (
             <>
+              {/* 배경 테마 기능 임시 비활성화 */}
+              {/*
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -138,6 +140,7 @@ const Header = () => {
                   </p>
                 </DropdownMenuContent>
               </DropdownMenu>
+              */}
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -145,7 +148,7 @@ const Header = () => {
                     variant={"ghost"}
                     className="flex cursor-pointer items-center gap-1"
                   >
-                    <span>{displayName}님</span>
+                    <span>⚡{displayName}님</span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>

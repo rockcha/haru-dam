@@ -157,6 +157,19 @@
 }
 
 @layer utilities {
+  .app-intro-background {
+    background-color: #f8fff8;
+    background-image:
+      linear-gradient(to right, rgb(22 101 52 / 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(22 101 52 / 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom right, #f8fff8, #eefbf1, #dcfce7);
+    background-size:
+      32px 32px,
+      32px 32px,
+      100% 100%;
+    background-repeat: repeat, repeat, no-repeat;
+  }
+
   .ellipsis-1 {
     overflow: hidden;
     text-overflow: ellipsis;

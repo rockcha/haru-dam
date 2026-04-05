@@ -258,8 +258,8 @@ export default function TodayTaskSection() {
 
         {!isCollapsed && (
           <CardContent className="mx-5 rounded-xl border p-2">
-            <ScrollArea className="h-80 pr-3">
-              {isLoading ? (
+            {isLoading ? (
+              <ScrollArea className="h-80 pr-3">
                 <div className="space-y-2 p-1">
                   {Array.from({ length: 6 }).map((_, index) => (
                     <div
@@ -275,13 +275,15 @@ export default function TodayTaskSection() {
                     </div>
                   ))}
                 </div>
-              ) : filteredTasks.length === 0 ? (
-                <div className="relative h-72">
-                  <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg text-muted-foreground">
-                    아무것도 없네요...🍃
-                  </p>
-                </div>
-              ) : (
+              </ScrollArea>
+            ) : filteredTasks.length === 0 ? (
+              <div className="flex h-80 items-center justify-center rounded-xl border-2 border-dashed border-emerald-600/80 bg-emerald-50/70 px-4">
+                <p className="text-center text-lg font-medium text-emerald-900/70">
+                  여기엔 아무것도 없네요..🥲
+                </p>
+              </div>
+            ) : (
+              <ScrollArea className="h-80 pr-3">
                 <div className="space-y-2">
                   {filteredTasks.map((task) => (
                     <div
@@ -337,8 +339,8 @@ export default function TodayTaskSection() {
                     </div>
                   ))}
                 </div>
-              )}
-            </ScrollArea>
+              </ScrollArea>
+            )}
           </CardContent>
         )}
       </Card>
