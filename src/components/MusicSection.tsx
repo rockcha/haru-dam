@@ -275,6 +275,15 @@ export default function MusicSection() {
     closeEditDialog()
   }
 
+  const handleEditKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (submitDisabled) return
+
+    void handleEdit()
+  }
+
   const handleDelete = async () => {
     if (!selectedTrack) return
     await deleteMutation.mutateAsync(selectedTrack.id)
@@ -609,6 +618,7 @@ export default function MusicSection() {
                 maxLength={MAX_TITLE_LENGTH}
                 value={form.title}
                 onChange={(e) => handleChangeForm("title", e.target.value)}
+                onKeyDown={handleEditKeyDown}
                 placeholder="예: 공부할 때 듣는 음악"
               />
               <p className="text-right text-xs text-muted-foreground">
@@ -623,6 +633,7 @@ export default function MusicSection() {
                 maxLength={MAX_URL_LENGTH}
                 value={form.url}
                 onChange={(e) => handleChangeForm("url", e.target.value)}
+                onKeyDown={handleEditKeyDown}
                 placeholder="예: https://www.youtube.com/watch?v=BXDSOP-Wn5c"
               />
               {urlError && (

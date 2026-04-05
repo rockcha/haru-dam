@@ -149,6 +149,15 @@ export default function TodayTaskSection() {
     closeEditDialog()
   }
 
+  const handleEditKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (updateMutation.isPending || !form.content.trim()) return
+
+    void handleEdit()
+  }
+
   const handleToggleDone = async (
     taskId: string,
     currentDone: boolean,
@@ -406,6 +415,7 @@ export default function TodayTaskSection() {
                 maxLength={MAX_CONTENT_LENGTH}
                 value={form.content}
                 onChange={(e) => handleChangeForm("content", e.target.value)}
+                onKeyDown={handleEditKeyDown}
                 placeholder="예: 운동 30분 하기"
               />
               <p className="text-right text-xs text-muted-foreground">

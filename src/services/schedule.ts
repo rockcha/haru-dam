@@ -127,11 +127,16 @@ export async function deleteSchedule(id: string): Promise<void> {
 /**
  * 모든 일정 조회 훅
  */
-export function useSchedules() {
+export function useSchedules(options?: {
+  refetchInterval?: number | false
+  refetchIntervalInBackground?: boolean
+}) {
   return useQuery({
     queryKey: ["schedules"],
     queryFn: fetchSchedules,
     staleTime: 1000 * 60 * 60,
+    refetchInterval: options?.refetchInterval,
+    refetchIntervalInBackground: options?.refetchIntervalInBackground,
   })
 }
 

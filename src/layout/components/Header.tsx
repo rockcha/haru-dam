@@ -18,8 +18,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, UserRound } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import HeaderMusicDropdown from "./HeaderMusicDropdown"
 import { toast } from "sonner"
 // import {
 //   useMyBgTheme,
@@ -142,13 +143,18 @@ const Header = () => {
               </DropdownMenu>
               */}
 
+              <HeaderMusicDropdown />
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant={"ghost"}
                     className="flex cursor-pointer items-center gap-1"
                   >
-                    <span>⚡{displayName}님</span>
+                    <span className="inline-flex items-center gap-1">
+                      <UserRound className="h-4 w-4" />
+                      {displayName}님
+                    </span>
                     <ChevronDown className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>

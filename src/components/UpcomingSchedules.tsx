@@ -28,7 +28,10 @@ import { useSectionCollapse } from "@/hooks/useSectionCollapse"
 
 export function UpcomingSchedules() {
   const navigate = useNavigate()
-  const { data: schedules = [], isLoading } = useSchedules()
+  const { data: schedules = [], isLoading } = useSchedules({
+    refetchInterval: 1000 * 60,
+    refetchIntervalInBackground: true,
+  })
   const { isCollapsed, toggleCollapsed } = useSectionCollapse("schedules")
 
   const upcomingSchedules = useMemo(() => {

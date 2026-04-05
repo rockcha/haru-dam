@@ -145,6 +145,15 @@ export default function DailyTaskSection() {
     closeEditDialog()
   }
 
+  const handleEditKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (updateMutation.isPending || !form.content.trim()) return
+
+    void handleEdit()
+  }
+
   const handleToggleDone = async (
     taskId: string,
     currentDone: boolean,
@@ -400,6 +409,7 @@ export default function DailyTaskSection() {
                 maxLength={MAX_CONTENT_LENGTH}
                 value={form.content}
                 onChange={(e) => handleChangeForm("content", e.target.value)}
+                onKeyDown={handleEditKeyDown}
                 placeholder="예: 물 2L 마시기"
               />
               <p className="text-right text-xs text-muted-foreground">

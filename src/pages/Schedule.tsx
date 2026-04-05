@@ -245,6 +245,15 @@ export default function Schedule() {
     setForm(initialForm)
   }
 
+  const handleUpdateKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" || event.nativeEvent.isComposing) return
+
+    event.preventDefault()
+    if (updateMutation.isPending || !form.title.trim() || !form.date) return
+
+    void handleUpdate()
+  }
+
   const handleDelete = async () => {
     if (!selectedSchedule) return
 
@@ -474,6 +483,7 @@ export default function Schedule() {
                   maxLength={TITLE_MAX_LENGTH}
                   value={form.title}
                   onChange={(e) => handleChangeForm("title", e.target.value)}
+                  onKeyDown={handleUpdateKeyDown}
                 />
                 <p className="text-right text-xs text-muted-foreground">
                   {form.title.length}/{TITLE_MAX_LENGTH}
@@ -496,6 +506,7 @@ export default function Schedule() {
                     type="time"
                     value={form.time}
                     onChange={(e) => handleChangeForm("time", e.target.value)}
+                    onKeyDown={handleUpdateKeyDown}
                   />
                 </div>
               </div>
