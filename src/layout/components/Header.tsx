@@ -59,13 +59,19 @@ const Header = () => {
 
   return (
     <>
-      <header className="fixed top-0 z-10 flex h-18 w-full max-w-7xl items-center justify-between border-b border-black/5 bg-white/90 px-4">
+      <header className="fixed top-0 z-10 flex h-18 w-full max-w-7xl items-center justify-between border-b border-black/5 bg-white/90 px-2">
         <div className="flex items-center justify-center gap-4">
           <Link
             to="/"
-            className="ease text-2xl transition duration-300 hover:scale-105 sm:text-3xl"
+            className="ease flex items-center gap-2 text-2xl transition duration-300 hover:scale-105 sm:text-3xl"
           >
-            하루,담
+            <img
+              src="/logo.png"
+              alt="하루담 로고"
+              className="h-8 w-8 object-contain sm:h-10 sm:w-10"
+            />
+
+            <span>하루,담</span>
           </Link>
 
           <TypingAnimation

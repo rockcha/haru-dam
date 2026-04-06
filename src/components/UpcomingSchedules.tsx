@@ -4,8 +4,11 @@ import { isAfter } from "date-fns"
 import { ChevronDown, ChevronUp, Timer } from "lucide-react"
 
 import { useSchedules } from "@/services/schedule"
+import type { Schedule } from "@/types/schedule"
 import { SECTION_DESCRIPTIONS } from "@/constants/sectionDescription"
+import { getScheduleTypeMeta } from "@/constants/scheduleType"
 import { getScheduleUrgencyStyle } from "@/constants/scheduleUrgency"
+import { ScheduleDetailDialog } from "@/pages/schedule/components/ScheduleDetailDialog"
 import {
   getScheduleDateTime,
   getRemainingMinutes,
@@ -32,6 +35,10 @@ export function UpcomingSchedules() {
   const navigate = useNavigate()
   const { data: schedules = [], isLoading } = useSchedules()
   const [now, setNow] = useState(() => new Date())
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+    null
+  )
   const { isCollapsed, toggleCollapsed } = useSectionCollapse("schedules")
 
   useEffect(() => {
@@ -109,10 +116,6 @@ export function UpcomingSchedules() {
 
       {!isCollapsed && (
         <CardContent className="space-y-4">
-          <div className="flex justify-start">
-            <Button onClick={() => navigate("/schedule")}>추가하러 가기</Button>
-          </div>
-
           {isLoading ? (
             <div className="flex gap-2 overflow-hidden">
               {Array.from({ length: 4 }).map((_, index) => (
@@ -148,31 +151,39 @@ export function UpcomingSchedules() {
                 {upcomingSchedules.map((schedule) => {
                   const remainingMinutes = getRemainingMinutes(schedule)
                   const urgencyStyle = getScheduleUrgencyStyle(remainingMinutes)
+                  const TypeIcon = getScheduleTypeMeta(schedule.type).Icon
 
                   return (
                     <CarouselItem
                       key={schedule.id}
                       className="basis-[200px] pl-2 md:basis-[250px]"
                     >
-                      <div
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedSchedule(schedule)
+                          setIsDetailOpen(true)
+                        }}
                         className={cn(
-                          "relative flex h-full flex-col justify-between overflow-hidden rounded-lg border p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
+                          "relative flex h-full w-full cursor-pointer flex-col justify-between overflow-hidden rounded-lg border p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
                           urgencyStyle.cardClassName
                         )}
                       >
                         <div className="space-y-3">
                           <div className="flex items-start justify-between gap-3">
-                            <h3 className="ellipsis-1 line-clamp-2 flex items-center justify-center gap-1 text-base leading-snug font-semibold text-foreground">
-                              <span
-                                className={cn(
-                                  "inline-flex align-middle text-base leading-none",
-                                  urgencyStyle.titleIconClassName
-                                )}
-                              >
-                                {urgencyStyle.titleEmoji}
-                              </span>
+                            <h3 className="line-clamp-2 flex-1 text-base leading-snug font-semibold text-foreground">
                               {schedule.title}
                             </h3>
+
+                            <span
+                              className={cn(
+                                "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-white shadow-sm",
+                                getScheduleTypeMeta(schedule.type)
+                                  .iconBadgeClassName
+                              )}
+                            >
+                              <TypeIcon className="h-4 w-4" />
+                            </span>
                           </div>
                         </div>
 
@@ -192,7 +203,7 @@ export function UpcomingSchedules() {
                             </span>
                           </p>
                         </div>
-                      </div>
+                      </button>
                     </CarouselItem>
                   )
                 })}
@@ -201,6 +212,17 @@ export function UpcomingSchedules() {
           )}
         </CardContent>
       )}
+
+      <ScheduleDetailDialog
+        open={isDetailOpen}
+        schedule={selectedSchedule}
+        onOpenChange={(open) => {
+          setIsDetailOpen(open)
+          if (!open) {
+            setSelectedSchedule(null)
+          }
+        }}
+      />
     </Card>
   )
 }

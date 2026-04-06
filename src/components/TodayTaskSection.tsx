@@ -81,7 +81,8 @@ export default function TodayTaskSection() {
     return tasks
   }, [tasks, filter])
 
-  const badgeCount = tasks.filter((task) => !task.is_done).length
+  const completedCount = tasks.filter((task) => task.is_done).length
+  const totalCount = tasks.length
 
   const openCreateDialog = () => {
     setForm(initialForm)
@@ -202,7 +203,7 @@ export default function TodayTaskSection() {
 
                 {isCollapsed && (
                   <span className="inline-flex min-w-8 items-center justify-center rounded-md bg-red-500 px-2 py-1 text-xs font-semibold text-white shadow-sm">
-                    {badgeCount}
+                    {completedCount}/{totalCount}
                   </span>
                 )}
               </div>

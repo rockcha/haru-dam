@@ -75,6 +75,7 @@ export async function createSchedule(
         user_id: user.id,
         title: input.title,
         date: input.date,
+        type: input.type,
         time: normalizedTime,
         memo: input.memo || null,
       },
@@ -98,6 +99,7 @@ export async function updateSchedule(
 
   if (updateData.title !== undefined) updatePayload.title = updateData.title
   if (updateData.date !== undefined) updatePayload.date = updateData.date
+  if (updateData.type !== undefined) updatePayload.type = updateData.type
   if (updateData.time !== undefined)
     updatePayload.time = normalizeScheduleTime(updateData.time)
   if (updateData.memo !== undefined) updatePayload.memo = updateData.memo
