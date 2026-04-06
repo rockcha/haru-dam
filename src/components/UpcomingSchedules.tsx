@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 import { isAfter } from "date-fns"
-import { ChevronDown, ChevronUp, Timer } from "lucide-react"
+import { ChevronDown, ChevronUp, CalendarDays, Timer } from "lucide-react"
 
 import { useSchedules } from "@/services/schedule"
 import type { Schedule } from "@/types/schedule"
@@ -39,6 +40,7 @@ export function UpcomingSchedules() {
     null
   )
   const { isCollapsed, toggleCollapsed } = useSectionCollapse("schedules")
+  const navigate = useNavigate()
 
   useEffect(() => {
     const timerId = window.setInterval(() => {
@@ -111,6 +113,15 @@ export function UpcomingSchedules() {
             <ChevronUp className="h-5 w-5" />
           )}
         </Button>
+
+        <Button
+          size="sm"
+          onClick={() => navigate("/schedule")}
+          className="absolute top-10 right-4 gap-1.5 p-4"
+        >
+          <CalendarDays className="h-3.5 w-3.5" />
+          달력 보기
+        </Button>
       </CardHeader>
 
       {!isCollapsed && (
@@ -120,7 +131,7 @@ export function UpcomingSchedules() {
               {Array.from({ length: 4 }).map((_, index) => (
                 <div
                   key={index}
-                  className="basis-[200px] rounded-lg border border-border/60 bg-background p-5 md:basis-[250px]"
+                  className="basis-[200px] rounded-lg border border-border/60 bg-white p-5 md:basis-[250px]"
                 >
                   <div className="space-y-3">
                     <Skeleton className="h-5 w-11/12" />
@@ -170,7 +181,7 @@ export function UpcomingSchedules() {
                       >
                         <div className="space-y-3">
                           <div className="flex items-start justify-between gap-3">
-                            <h3 className="line-clamp-2 flex-1 text-base leading-snug font-semibold text-foreground">
+                            <h3 className="line-clamp-2 flex-1 text-base leading-snug font-semibold text-slate-900">
                               {schedule.title}
                             </h3>
 

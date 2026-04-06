@@ -2,9 +2,9 @@ import type { LucideIcon } from "lucide-react"
 import {
   BriefcaseBusiness,
   CalendarHeart,
-  House,
+  UserRound,
   PartyPopper,
-  Tag,
+  Guitar,
 } from "lucide-react"
 
 export const SCHEDULE_TYPE_OPTIONS = [
@@ -28,7 +28,7 @@ type ScheduleTypeMeta = {
 
 export const SCHEDULE_TYPE_META: Record<ScheduleType, ScheduleTypeMeta> = {
   개인: {
-    Icon: House,
+    Icon: UserRound,
     previewClassName:
       "border-transparent bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white",
     iconBadgeClassName: "bg-emerald-600",
@@ -56,7 +56,7 @@ export const SCHEDULE_TYPE_META: Record<ScheduleType, ScheduleTypeMeta> = {
     iconClassName: "text-violet-600",
   },
   기타: {
-    Icon: Tag,
+    Icon: Guitar,
     previewClassName:
       "border-transparent bg-zinc-600 text-white hover:bg-zinc-700 hover:text-white",
     iconBadgeClassName: "bg-zinc-600",

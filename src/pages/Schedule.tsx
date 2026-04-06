@@ -203,7 +203,7 @@ export default function Schedule() {
                   className={[
                     "flex h-40 min-h-40 flex-col border-r border-b bg-white p-2",
                     "min-h-0",
-                    isCurrentMonth ? "" : "bg-muted/25 text-muted-foreground",
+                    isCurrentMonth ? "" : "bg-slate-50 text-slate-400",
                   ].join(" ")}
                 >
                   <button
@@ -215,8 +215,8 @@ export default function Schedule() {
                       className={[
                         "flex h-7 w-7 items-center justify-center rounded-full",
                         isToday
-                          ? "bg-green-500/50 text-foreground"
-                          : "text-foreground",
+                          ? "bg-green-500/50 text-slate-900"
+                          : "text-slate-700",
                       ].join(" ")}
                     >
                       {format(day, "d")}

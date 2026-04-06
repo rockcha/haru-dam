@@ -25,7 +25,7 @@ export function BottomNav() {
         iconSize={44}
         iconMagnification={64}
         iconDistance={120}
-        className="border-white/30 bg-white/80 shadow-xl backdrop-blur-xl dark:bg-black/50"
+        className="border-white/30 bg-white/80 shadow-xl backdrop-blur-xl"
       >
         {NAV_ITEMS.map(({ label, path, icon: Icon }) => {
           const isActive =
