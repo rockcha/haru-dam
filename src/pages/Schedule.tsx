@@ -227,12 +227,12 @@ export default function Schedule() {
                     <ScrollArea className="h-full pr-1">
                       <div className="space-y-1">
                         {daySchedules.map((schedule) => (
-                          <Button
+                          <button
                             key={schedule.id}
+                            type="button"
                             onClick={() => openDetailDialog(schedule)}
-                            variant="outline"
                             className={[
-                              "h-auto w-fit max-w-full justify-start p-2 text-left text-xs font-medium",
+                              "block h-auto w-fit max-w-full cursor-pointer rounded-md p-2 text-left text-xs font-medium transition-colors",
                               getScheduleTypeMeta(schedule.type)
                                 .previewClassName,
                             ].join(" ")}
@@ -240,7 +240,7 @@ export default function Schedule() {
                             <div className="truncate text-xs">
                               {schedule.title}
                             </div>
-                          </Button>
+                          </button>
                         ))}
 
                         {daySchedules.length === 0 && (
