@@ -2,6 +2,9 @@ export type YouTubePlayer = {
   destroy: () => void
   playVideo: () => void
   pauseVideo: () => void
+  getCurrentTime: () => number
+  getDuration: () => number
+  seekTo: (seconds: number, allowSeekAhead?: boolean) => void
 }
 
 declare global {
