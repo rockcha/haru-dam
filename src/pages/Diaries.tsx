@@ -226,13 +226,13 @@ export default function Diaries() {
                         <p className="mb-2 text-xs font-semibold tracking-[0.18em] text-emerald-600 uppercase">
                           오늘의 기록
                         </p>
-                        <p className="line-clamp-5 text-sm leading-7 text-slate-700">
+                        <p className="h-[8.75rem] overflow-hidden text-sm leading-7 text-slate-700">
                           {diary.content}
                         </p>
                       </div>
 
                       <div className="flex items-center justify-end text-sm font-medium text-emerald-700">
-                        자세히 읽기
+                        수정하러 가기
                         <ChevronRight className="h-4 w-4" />
                       </div>
                     </div>
