@@ -31,45 +31,19 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  getYoutubeVideoId,
+  isValidYoutubeUrl,
+  loadYouTubeIframeApi,
+  normalizeYoutubeUrl,
+  type YouTubePlayer,
+} from "@/lib/youtube"
 import { cn } from "@/lib/utils"
 import { useSectionCollapse } from "@/hooks/useSectionCollapse"
 
 type FormState = {
   title: string
   url: string
-}
-
-type YouTubePlayer = {
-  destroy: () => void
-  playVideo: () => void
-  pauseVideo: () => void
-}
-
-declare global {
-  interface Window {
-    YT: {
-      Player: new (
-        elementId: string,
-        config: {
-          videoId: string
-          playerVars?: Record<string, string | number>
-          events?: {
-            onReady?: () => void
-            onStateChange?: (event: { data: number }) => void
-          }
-        }
-      ) => YouTubePlayer
-      PlayerState: {
-        UNSTARTED: -1
-        ENDED: 0
-        PLAYING: 1
-        PAUSED: 2
-        BUFFERING: 3
-        CUED: 5
-      }
-    }
-    onYouTubeIframeAPIReady?: () => void
-  }
 }
 
 const initialForm: FormState = {
@@ -80,82 +54,6 @@ const initialForm: FormState = {
 const MAX_TITLE_LENGTH = 20
 const MAX_URL_LENGTH = 300
 const PLAYER_ELEMENT_ID = "music-youtube-player"
-
-const normalizeYoutubeUrl = (url: string) => {
-  const trimmed = url.trim()
-  if (!trimmed) return ""
-  if (/^https?:\/\//i.test(trimmed)) return trimmed
-  return `https://${trimmed}`
-}
-
-const isValidYoutubeUrl = (url: string) => {
-  try {
-    const parsed = new URL(normalizeYoutubeUrl(url))
-    const host = parsed.hostname.replace("www.", "")
-
-    return (
-      host === "youtube.com" || host === "youtu.be" || host === "m.youtube.com"
-    )
-  } catch {
-    return false
-  }
-}
-
-const getYoutubeVideoId = (url: string) => {
-  try {
-    const parsed = new URL(normalizeYoutubeUrl(url))
-    const host = parsed.hostname.replace("www.", "")
-
-    if (host === "youtu.be") {
-      return parsed.pathname.replace("/", "")
-    }
-
-    if (host === "youtube.com" || host === "m.youtube.com") {
-      if (parsed.pathname === "/watch") {
-        return parsed.searchParams.get("v") ?? ""
-      }
-
-      if (parsed.pathname.startsWith("/embed/")) {
-        return parsed.pathname.split("/embed/")[1] ?? ""
-      }
-
-      if (parsed.pathname.startsWith("/shorts/")) {
-        return parsed.pathname.split("/shorts/")[1] ?? ""
-      }
-    }
-
-    return ""
-  } catch {
-    return ""
-  }
-}
-
-const loadYouTubeIframeApi = () => {
-  return new Promise<void>((resolve) => {
-    if (window.YT?.Player) {
-      resolve()
-      return
-    }
-
-    const existingScript = document.querySelector<HTMLScriptElement>(
-      'script[src="https://www.youtube.com/iframe_api"]'
-    )
-
-    if (!existingScript) {
-      const script = document.createElement("script")
-      script.src = "https://www.youtube.com/iframe_api"
-      script.async = true
-      document.body.appendChild(script)
-    }
-
-    const previous = window.onYouTubeIframeAPIReady
-
-    window.onYouTubeIframeAPIReady = () => {
-      previous?.()
-      resolve()
-    }
-  })
-}
 
 export default function MusicSection() {
   const { user } = useAuth()
