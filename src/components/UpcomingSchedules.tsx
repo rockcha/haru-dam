@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+
 import { isAfter } from "date-fns"
 import { ChevronDown, ChevronUp, Timer } from "lucide-react"
 
@@ -32,7 +32,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useSectionCollapse } from "@/hooks/useSectionCollapse"
 
 export function UpcomingSchedules() {
-  const navigate = useNavigate()
   const { data: schedules = [], isLoading } = useSchedules()
   const [now, setNow] = useState(() => new Date())
   const [isDetailOpen, setIsDetailOpen] = useState(false)
