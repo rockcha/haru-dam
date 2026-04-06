@@ -15,11 +15,10 @@ import {
   loadYouTubeIframeApi,
   type YouTubePlayer,
 } from "@/lib/youtube"
-
 const PLAYER_ELEMENT_ID = "header-youtube-player"
 
 export default function HeaderMusicDropdown() {
-  const { data: tracks = [] } = useMusicTracks()
+  const { data: tracks = [], isLoading } = useMusicTracks()
   const {
     isPlaying,
     playTrack,
@@ -27,9 +26,15 @@ export default function HeaderMusicDropdown() {
     setSelectedTrackId,
     stopPlayback,
     togglePlayback,
+    getTrackStartOffset,
+    setPlaybackProgress,
+    seekToSeconds,
+    seekRequestId,
+    setTrackStartOffset,
   } = useMusicPlayer()
 
   const playerRef = useRef<YouTubePlayer | null>(null)
+  const lastHandledSeekRequestIdRef = useRef(0)
 
   const activeTrackId = useMemo(() => {
     if (tracks.some((track) => track.id === selectedTrackId)) {
@@ -40,6 +45,10 @@ export default function HeaderMusicDropdown() {
   }, [tracks, selectedTrackId])
 
   useEffect(() => {
+    if (isLoading) {
+      return
+    }
+
     if (!tracks.length) {
       stopPlayback()
       setSelectedTrackId("")
@@ -49,7 +58,7 @@ export default function HeaderMusicDropdown() {
     if (!tracks.some((track) => track.id === selectedTrackId)) {
       setSelectedTrackId(tracks[0].id)
     }
-  }, [selectedTrackId, setSelectedTrackId, stopPlayback, tracks])
+  }, [isLoading, selectedTrackId, setSelectedTrackId, stopPlayback, tracks])
 
   const selectedTrack = useMemo(() => {
     return tracks.find((track) => track.id === activeTrackId) ?? null
@@ -58,6 +67,9 @@ export default function HeaderMusicDropdown() {
   const selectedVideoId = selectedTrack
     ? getYoutubeVideoId(selectedTrack.url)
     : ""
+  const selectedStartOffset = selectedTrack
+    ? getTrackStartOffset(selectedTrack.id)
+    : 0
 
   useEffect(() => {
     if (!selectedVideoId) {
@@ -80,6 +92,7 @@ export default function HeaderMusicDropdown() {
           autoplay: 0,
           rel: 0,
           playsinline: 1,
+          start: selectedStartOffset,
         },
         events: {
           onReady: () => {
@@ -96,7 +109,7 @@ export default function HeaderMusicDropdown() {
     return () => {
       isMounted = false
     }
-  }, [selectedVideoId, isPlaying])
+  }, [selectedVideoId])
 
   useEffect(() => {
     if (!playerRef.current) return
@@ -108,6 +121,47 @@ export default function HeaderMusicDropdown() {
 
     playerRef.current.pauseVideo()
   }, [isPlaying])
+
+  useEffect(() => {
+    if (!playerRef.current || !selectedTrack) return
+
+    const timerId = window.setInterval(() => {
+      if (!playerRef.current) return
+
+      const currentSeconds = playerRef.current.getCurrentTime?.() ?? 0
+      const durationSeconds = playerRef.current.getDuration?.() ?? 0
+
+      setPlaybackProgress({
+        trackId: selectedTrack.id,
+        currentSeconds,
+        durationSeconds,
+      })
+    }, 500)
+
+    return () => {
+      window.clearInterval(timerId)
+    }
+  }, [selectedTrack, setPlaybackProgress])
+
+  useEffect(() => {
+    if (!playerRef.current || !selectedTrack || seekRequestId === 0) return
+    if (lastHandledSeekRequestIdRef.current === seekRequestId) return
+
+    lastHandledSeekRequestIdRef.current = seekRequestId
+
+    playerRef.current.seekTo?.(seekToSeconds, true)
+    setTrackStartOffset(selectedTrack.id, seekToSeconds)
+
+    if (!isPlaying) {
+      playerRef.current.pauseVideo?.()
+    }
+  }, [
+    isPlaying,
+    seekRequestId,
+    seekToSeconds,
+    selectedTrack,
+    setTrackStartOffset,
+  ])
 
   useEffect(() => {
     return () => {
@@ -138,7 +192,7 @@ export default function HeaderMusicDropdown() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            variant={"ghost"}
+            variant="ghost"
             size="icon"
             className={cn(
               "cursor-pointer rounded-full",
@@ -147,7 +201,7 @@ export default function HeaderMusicDropdown() {
             )}
             disabled={tracks.length === 0}
             onClick={handleTogglePlay}
-            aria-label={isPlaying ? "음악 끄기" : "음악 재생"}
+            aria-label={isPlaying ? "음악 일시정지" : "음악 재생"}
           >
             <Music2
               className={cn(
@@ -160,7 +214,9 @@ export default function HeaderMusicDropdown() {
         </TooltipTrigger>
         <TooltipContent side="bottom" sideOffset={8}>
           {selectedTrack
-            ? `${selectedTrack.title} ${isPlaying ? "끄기" : "켜기"}`
+            ? isPlaying
+              ? "일시정지"
+              : "재생"
             : "재생할 음악이 없어요"}
         </TooltipContent>
       </Tooltip>

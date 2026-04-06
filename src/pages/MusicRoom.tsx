@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Music2, Plus, Star, Trash2 } from "lucide-react"
+import { Music2, Pause, Play, Plus, Star, Trash2 } from "lucide-react"
 
 import { useMusicPlayer } from "@/context/MusicPlayerContext"
 import {
@@ -39,15 +39,54 @@ const initialForm: FormState = {
 const MAX_TITLE_LENGTH = 40
 const MAX_URL_LENGTH = 300
 
+function formatClock(totalSeconds: number) {
+  const safe = Math.max(0, Math.floor(totalSeconds))
+  const minutes = Math.floor(safe / 60)
+  const seconds = safe % 60
+  return `${minutes}:${String(seconds).padStart(2, "0")}`
+}
+
 export default function MusicRoom() {
   const { data: tracks = [], isLoading } = useMusicTracks()
   const createTrackMutation = useCreateMusicTrack()
   const deleteTrackMutation = useDeleteMusicTrack()
-  const { isPlaying, selectedTrackId, setSelectedTrackId, stopPlayback } =
-    useMusicPlayer()
+  const {
+    isPlaying,
+    playTrack,
+    selectedTrackId,
+    setSelectedTrackId,
+    stopPlayback,
+    togglePlayback,
+    getTrackStartOffset,
+    setTrackStartOffset,
+    playbackTrackId,
+    playbackCurrentSeconds,
+    playbackDurationSeconds,
+    requestSeekTo,
+  } = useMusicPlayer()
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [form, setForm] = useState<FormState>(initialForm)
+
+  const selectedTrack = useMemo(() => {
+    return tracks.find((track) => track.id === selectedTrackId) ?? null
+  }, [tracks, selectedTrackId])
+  const selectedTrackStartOffset = selectedTrack
+    ? getTrackStartOffset(selectedTrack.id)
+    : 0
+  const selectedThumbnailUrl = selectedTrack
+    ? getYoutubeThumbnailUrl(selectedTrack.url)
+    : null
+  const isFavoriteLoaded =
+    !!selectedTrack && playbackTrackId === selectedTrack.id
+  const progressCurrentSeconds = isFavoriteLoaded
+    ? playbackCurrentSeconds
+    : selectedTrackStartOffset
+  const progressDurationSeconds = Math.max(
+    isFavoriteLoaded ? playbackDurationSeconds : selectedTrackStartOffset,
+    progressCurrentSeconds,
+    1
+  )
 
   const createDisabled = useMemo(() => {
     const trimmedTitle = form.title.trim()
@@ -90,17 +129,112 @@ export default function MusicRoom() {
     await deleteTrackMutation.mutateAsync(trackId)
   }
 
+  const handleHeroToggle = () => {
+    if (!selectedTrack) return
+
+    if (!isPlaying || selectedTrackId !== selectedTrack.id) {
+      playTrack(selectedTrack.id)
+      return
+    }
+
+    togglePlayback(selectedTrack.id)
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 md:p-6">
+      <Card className="border-emerald-200 bg-emerald-50/40 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg font-semibold text-emerald-800">
+            즐겨찾기 플레이어
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          {selectedTrack ? (
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleHeroToggle}
+                className="group relative block w-full cursor-pointer overflow-hidden rounded-2xl border border-emerald-200 bg-black/80 text-left shadow-sm"
+              >
+                {selectedThumbnailUrl ? (
+                  <img
+                    src={selectedThumbnailUrl}
+                    alt={selectedTrack.title}
+                    className="h-56 w-full object-cover opacity-75 transition duration-300 group-hover:scale-[1.02] group-hover:opacity-90"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="flex h-56 w-full items-center justify-center bg-emerald-900/20 text-sm text-white/80">
+                    썸네일 없음
+                  </div>
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex h-18 w-18 items-center justify-center rounded-full bg-white/20 backdrop-blur-md transition group-hover:scale-105">
+                    {isPlaying ? (
+                      <Pause className="h-8 w-8 text-white" />
+                    ) : (
+                      <Play className="h-8 w-8 fill-white text-white" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="absolute right-4 bottom-4 left-4">
+                  <p className="line-clamp-1 text-sm font-semibold text-white">
+                    {selectedTrack.title}
+                  </p>
+                  <p className="mt-1 text-xs text-white/80">
+                    {isPlaying ? "재생 중" : "클릭하면 재생돼요"}
+                  </p>
+                </div>
+              </button>
+
+              <div className="rounded-lg border border-emerald-200 bg-white/70 px-3 py-3">
+                <input
+                  type="range"
+                  min={0}
+                  max={progressDurationSeconds}
+                  step={1}
+                  value={Math.min(
+                    progressCurrentSeconds,
+                    progressDurationSeconds
+                  )}
+                  onChange={(event) => {
+                    const seconds = Number(event.target.value)
+                    if (Number.isNaN(seconds)) return
+
+                    setTrackStartOffset(selectedTrack.id, seconds)
+                    requestSeekTo(seconds)
+                  }}
+                  className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-emerald-200 accent-white [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-emerald-300 [&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:shadow-sm [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-emerald-300 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-sm"
+                />
+
+                <div className="mt-2 flex items-center justify-between text-xs font-medium text-emerald-900/80">
+                  <span>{formatClock(progressCurrentSeconds)}</span>
+                  <span>{formatClock(progressDurationSeconds)}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-emerald-900/70">
+              음악 카드를 클릭해 즐겨찾기로 지정하세요
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="border-emerald-100 shadow-sm">
         <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div>
             <CardTitle className="text-2xl font-bold text-emerald-700">
               나의 뮤직룸
             </CardTitle>
+
             <p className="mt-1 text-sm text-muted-foreground">
-              카드를 클릭해서 즐겨찾기로 지정하면, 헤더 버튼으로 바로 재생할 수
-              있어요.
+              음악 카드를 클릭해 즐겨찾기로 지정하세요
             </p>
           </div>
 
@@ -145,8 +279,8 @@ export default function MusicRoom() {
                     key={track.id}
                     className={
                       isActive
-                        ? "overflow-hidden border-emerald-400 shadow-[0_0_0_1px_rgba(16,185,129,0.2),0_8px_24px_rgba(16,185,129,0.12)]"
-                        : "overflow-hidden border-black/5"
+                        ? "relative overflow-hidden border-emerald-400 pt-0 shadow-[0_0_0_1px_rgba(16,185,129,0.2),0_8px_24px_rgba(16,185,129,0.12)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_0_1px_rgba(16,185,129,0.24),0_12px_28px_rgba(16,185,129,0.16)]"
+                        : "relative overflow-hidden border-black/5 pt-0 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
                     }
                   >
                     <button
@@ -160,9 +294,9 @@ export default function MusicRoom() {
                           setSelectedTrackId(track.id)
                         }
                       }}
-                      className="w-full cursor-pointer text-left transition hover:bg-emerald-50/40"
+                      className="w-full cursor-pointer text-center transition hover:bg-emerald-50/40"
                     >
-                      <div className="relative aspect-video overflow-hidden bg-emerald-50">
+                      <div className="aspect-video overflow-hidden bg-emerald-50">
                         {thumbnailUrl ? (
                           <img
                             src={thumbnailUrl}
@@ -186,13 +320,6 @@ export default function MusicRoom() {
                       <div className="p-3">
                         <p className="line-clamp-2 min-h-12 text-sm leading-6 font-semibold text-slate-900">
                           {track.title}
-                        </p>
-                        <p className="mt-1 text-xs text-emerald-700">
-                          {isActive
-                            ? isPlaying
-                              ? "헤더에서 재생 중 ▶"
-                              : "즐겨찾기로 지정됨 ★"
-                            : "클릭하면 즐겨찾기로 지정돼요"}
                         </p>
                       </div>
                     </button>
