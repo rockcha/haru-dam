@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Music2, Plus, Trash2 } from "lucide-react"
+import { Music2, Plus, Star, Trash2 } from "lucide-react"
 
 import { useMusicPlayer } from "@/context/MusicPlayerContext"
 import {
@@ -43,13 +43,8 @@ export default function MusicRoom() {
   const { data: tracks = [], isLoading } = useMusicTracks()
   const createTrackMutation = useCreateMusicTrack()
   const deleteTrackMutation = useDeleteMusicTrack()
-  const {
-    isPlaying,
-    playTrack,
-    selectedTrackId,
-    setSelectedTrackId,
-    stopPlayback,
-  } = useMusicPlayer()
+  const { isPlaying, selectedTrackId, setSelectedTrackId, stopPlayback } =
+    useMusicPlayer()
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [form, setForm] = useState<FormState>(initialForm)
@@ -104,7 +99,8 @@ export default function MusicRoom() {
               나의 뮤직룸
             </CardTitle>
             <p className="mt-1 text-sm text-muted-foreground">
-              저장한 음악을 카드처럼 모아보고, 클릭해서 바로 재생하세요.
+              카드를 클릭해서 즐겨찾기로 지정하면, 헤더 버튼으로 바로 재생할 수
+              있어요.
             </p>
           </div>
 
@@ -148,17 +144,25 @@ export default function MusicRoom() {
                   <Card
                     key={track.id}
                     className={
-                      isActive && isPlaying
-                        ? "overflow-hidden border-emerald-300 shadow-[0_0_0_1px_rgba(16,185,129,0.15),0_18px_36px_rgba(16,185,129,0.12)]"
+                      isActive
+                        ? "overflow-hidden border-emerald-400 shadow-[0_0_0_1px_rgba(16,185,129,0.2),0_8px_24px_rgba(16,185,129,0.12)]"
                         : "overflow-hidden border-black/5"
                     }
                   >
                     <button
                       type="button"
-                      onClick={() => playTrack(track.id)}
+                      onClick={() => {
+                        if (isActive) {
+                          stopPlayback()
+                          setSelectedTrackId("")
+                        } else {
+                          stopPlayback()
+                          setSelectedTrackId(track.id)
+                        }
+                      }}
                       className="w-full cursor-pointer text-left transition hover:bg-emerald-50/40"
                     >
-                      <div className="aspect-video overflow-hidden bg-emerald-50">
+                      <div className="relative aspect-video overflow-hidden bg-emerald-50">
                         {thumbnailUrl ? (
                           <img
                             src={thumbnailUrl}
@@ -171,6 +175,12 @@ export default function MusicRoom() {
                             썸네일 없음
                           </div>
                         )}
+                        {isActive && (
+                          <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-emerald-500 px-2 py-0.5 text-xs font-semibold text-white shadow">
+                            <Star className="h-3 w-3 fill-white" />
+                            즐겨찾기
+                          </div>
+                        )}
                       </div>
 
                       <div className="p-3">
@@ -178,9 +188,11 @@ export default function MusicRoom() {
                           {track.title}
                         </p>
                         <p className="mt-1 text-xs text-emerald-700">
-                          {isActive && isPlaying
-                            ? "헤더에서 재생 중"
-                            : "클릭하면 재생돼요"}
+                          {isActive
+                            ? isPlaying
+                              ? "헤더에서 재생 중 ▶"
+                              : "즐겨찾기로 지정됨 ★"
+                            : "클릭하면 즐겨찾기로 지정돼요"}
                         </p>
                       </div>
                     </button>

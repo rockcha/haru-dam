@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom"
-import { Home, BookOpen, Music2 } from "lucide-react"
+import { Home, BookOpen, Music2, CalendarDays } from "lucide-react"
 import { Dock, DockIcon } from "@/components/ui/dock"
 import {
   Tooltip,
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 
 const NAV_ITEMS = [
   { label: "홈", path: "/", icon: Home },
+  { label: "스케줄러", path: "/schedule", icon: CalendarDays },
   { label: "일기장", path: "/diaries", icon: BookOpen },
   { label: "뮤직룸", path: "/musicroom", icon: Music2 },
 ]
