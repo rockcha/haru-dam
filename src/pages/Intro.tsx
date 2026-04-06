@@ -44,7 +44,7 @@ export function Intro() {
       <div className="pointer-events-none absolute bottom-0 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-green-100/70 blur-3xl" />
 
       {/* logo / brand */}
-      <div className="absolute top-6 left-6 z-20 flex items-center gap-3 rounded-full border border-white/70 bg-white/70 px-5 py-3 shadow-sm backdrop-blur-md sm:top-8 sm:left-8">
+      <div className="absolute top-6 left-6 z-20 flex items-center gap-3 sm:top-8 sm:left-8">
         <img
           src="/logo.png"
           alt="하루,담 로고"

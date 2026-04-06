@@ -15,6 +15,8 @@ import { useAuth } from "@/hooks/useAuth"
 const menus = [
   { label: "홈", path: "/", emoji: "🏠", requiresAuth: false },
   { label: "달력", path: "/schedule", emoji: "📆", requiresAuth: true },
+  { label: "일기장", path: "/diaries", emoji: "📔", requiresAuth: true },
+  { label: "뮤직룸", path: "/musicroom", emoji: "🎵", requiresAuth: true },
   {
     label: "개발자 노트 (준비 중)",
     path: "/dev-note",

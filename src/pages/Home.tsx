@@ -2,7 +2,6 @@ import DailyTaskSection from "@/components/DailyTasksSection"
 import TodayTaskSection from "@/components/TodayTaskSection"
 import { UpcomingSchedules } from "@/components/UpcomingSchedules"
 import BookmarkSection from "@/components/BookmarkSection"
-import MusicSection from "@/components/MusicSection"
 import MemoSection from "@/components/MemoSection"
 export function Home() {
   return (
@@ -16,12 +15,11 @@ export function Home() {
       <section className="grid grid-cols-1 gap-2 md:grid-cols-2 md:items-start">
         <div className="flex flex-col gap-2">
           <DailyTaskSection />
-          <MusicSection />
+          <MemoSection />
         </div>
 
         <div className="flex flex-col gap-2">
           <TodayTaskSection />
-          <MemoSection />
         </div>
       </section>
     </div>

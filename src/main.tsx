@@ -7,6 +7,7 @@ import "./index.css"
 import App from "./App.tsx"
 import { ThemeProvider } from "@/components/theme-provider.tsx"
 import { AuthProvider } from "@/context/AuthContext"
+import { MusicPlayerProvider } from "@/context/MusicPlayerContext"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "./components/ui/tooltip.tsx"
 import { queryClient } from "@/lib/queryClient"
@@ -17,11 +18,13 @@ createRoot(document.getElementById("root")!).render(
       <ThemeProvider defaultTheme="system" storageKey="harudam-theme">
         <BrowserRouter>
           <AuthProvider>
-            <TooltipProvider>
-              <App />
-            </TooltipProvider>
+            <MusicPlayerProvider>
+              <TooltipProvider>
+                <App />
+              </TooltipProvider>
 
-            <Toaster />
+              <Toaster />
+            </MusicPlayerProvider>
           </AuthProvider>
         </BrowserRouter>
       </ThemeProvider>
