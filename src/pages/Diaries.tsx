@@ -101,10 +101,18 @@ export default function Diaries() {
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 p-4 md:p-6">
       <Card className="border-emerald-100 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between gap-3">
-          <CardTitle className="text-2xl font-bold text-emerald-700">
-            나의 일기 꾸러미
-          </CardTitle>
+        <CardHeader className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
+          <div className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-emerald-700">
+              나의 일기 꾸러미
+            </CardTitle>
+            <p className="text-xs text-emerald-700/80">
+              <span className="font-semibold text-emerald-800">오늘 날짜</span>
+              의 일기를 작성하면
+              <span className="font-semibold text-emerald-800"> 골드 8</span>을
+              획득할 수 있어요.
+            </p>
+          </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-emerald-900">
               <span
@@ -226,7 +234,7 @@ export default function Diaries() {
                         <p className="mb-2 text-xs font-semibold tracking-[0.18em] text-emerald-600 uppercase">
                           오늘의 기록
                         </p>
-                        <p className="h-[8.75rem] overflow-hidden text-sm leading-7 text-slate-700">
+                        <p className="h-35 overflow-hidden text-sm leading-7 text-slate-700">
                           {diary.content}
                         </p>
                       </div>

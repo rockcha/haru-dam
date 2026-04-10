@@ -1,7 +1,6 @@
 import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useNavigate, Link, useLocation } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { TypingAnimation } from "@/components/ui/typing-animation"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,20 +17,47 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { ChevronDown, UserRound } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  ChevronDown,
+  UserRound,
+  Home,
+  BookOpen,
+  Headphones,
+  CalendarDays,
+  Coins,
+  Fish,
+} from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
+import { cn } from "@/lib/utils"
 import HeaderMusicDropdown from "./HeaderMusicDropdown"
 import { toast } from "sonner"
+import { useMyGold } from "@/services/gold"
+import { Separator } from "@/components/ui/separator"
 // import {
 //   useMyBgTheme,
 //   useThemeColors,
 //   useUpdateMyBgTheme,
 // } from "@/services/bg-theme"
 
+const NAV_ITEMS = [
+  { label: "홈", path: "/", icon: Home },
+  { label: "스케줄러", path: "/schedule", icon: CalendarDays },
+  { label: "일기장", path: "/diaries", icon: BookOpen },
+  { label: "뮤직룸", path: "/musicroom", icon: Headphones },
+  { label: "낚시터", path: "/fishing", icon: Fish },
+]
+
 const Header = () => {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, isAuthenticated, signOut } = useAuth()
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false)
+  const { data: goldAmount = 0 } = useMyGold(isAuthenticated)
 
   // const { data: themeColors = [] } = useThemeColors()
   // const { data: myBgTheme } = useMyBgTheme()
@@ -46,7 +72,7 @@ const Header = () => {
       toast.success("로그아웃되었습니다")
       navigate("/signin")
       setIsLogoutDialogOpen(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error("로그아웃에 실패했습니다")
       console.error("Logout error:", err)
     }
@@ -60,6 +86,7 @@ const Header = () => {
   return (
     <>
       <header className="fixed top-0 z-10 flex h-18 w-full max-w-7xl items-center justify-between border-b border-black/5 bg-white/90 px-2">
+        {/* 좌측: 로고 */}
         <div className="flex items-center justify-center gap-4">
           <Link
             to="/"
@@ -73,18 +100,43 @@ const Header = () => {
 
             <span>하루,담</span>
           </Link>
-
-          <TypingAnimation
-            words={["하루하루를 ", "담아내세요", "하루,담"]}
-            loop
-            typeSpeed={100}
-            deleteSpeed={150}
-            pauseDelay={2500}
-            className="sm:text-md text-sm font-medium text-primary"
-          />
         </div>
 
-        <div className="flex items-center">
+        {/* 중앙: 네비게이션 (데스크톱에서만 보임) */}
+        <div className="hidden gap-2 md:flex">
+          {NAV_ITEMS.map(({ label, path, icon: Icon }) => {
+            const isActive =
+              path === "/"
+                ? location.pathname === "/"
+                : location.pathname.startsWith(path)
+            return (
+              <Tooltip key={path}>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => navigate(path)}
+                    className={cn(
+                      "cursor-pointer rounded-full p-2 transition-colors duration-200 hover:bg-emerald-100",
+                      isActive && "bg-emerald-100"
+                    )}
+                    aria-label={label}
+                  >
+                    <Icon
+                      className={cn(
+                        "h-5 w-5 transition-colors duration-200",
+                        isActive ? "text-emerald-600" : "text-gray-500"
+                      )}
+                    />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" sideOffset={8}>
+                  {label}
+                </TooltipContent>
+              </Tooltip>
+            )
+          })}
+        </div>
+
+        <div className="flex items-center gap-2">
           {isAuthenticated ? (
             <>
               {/* 배경 테마 기능 임시 비활성화 */}
@@ -150,6 +202,22 @@ const Header = () => {
               */}
 
               <HeaderMusicDropdown />
+
+              <Separator orientation="vertical" className="h-5" />
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 rounded-full px-2 py-1 text-amber-600">
+                    <Coins className="h-4 w-4" />
+                    <span className="text-sm font-semibold">{goldAmount}</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" sideOffset={8}>
+                  출석체크와 일기 작성으로 골드를 얻을 수 있어요.
+                </TooltipContent>
+              </Tooltip>
+
+              <Separator orientation="vertical" className="h-5" />
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

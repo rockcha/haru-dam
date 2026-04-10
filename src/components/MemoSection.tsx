@@ -46,10 +46,10 @@ export default function MemoSection() {
   const [isClearOpen, setIsClearOpen] = useState(false)
 
   const [content, setContent] = useState("")
-  const [memoId, setMemoId] = useState<string | null>(null)
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const isHydratingRef = useRef(false)
+  const latestMemoIdRef = useRef<string | null>(null)
 
   const { data: memos = [], isLoading } = useMemos()
   const createMutation = useCreateMemo()
@@ -62,18 +62,18 @@ export default function MemoSection() {
     isHydratingRef.current = true
 
     if (!memo) {
-      setMemoId(null)
-      setContent("")
+      latestMemoIdRef.current = null
       queueMicrotask(() => {
+        setContent("")
         isHydratingRef.current = false
       })
       return
     }
 
-    setMemoId(memo.id)
-    setContent(memo.content)
+    latestMemoIdRef.current = memo.id
 
     queueMicrotask(() => {
+      setContent(memo.content)
       isHydratingRef.current = false
     })
   }, [memo])
@@ -89,16 +89,18 @@ export default function MemoSection() {
     if (createMutation.isPending || updateMutation.isPending) return
 
     const timer = setTimeout(async () => {
-      if (!memoId) {
+      const targetMemoId = memo?.id ?? latestMemoIdRef.current
+
+      if (!targetMemoId) {
         const created = await createMutation.mutateAsync({
           content: trimmedContent,
         })
-        setMemoId(created.id)
+        latestMemoIdRef.current = created.id
         return
       }
 
       await updateMutation.mutateAsync({
-        id: memoId,
+        id: targetMemoId,
         payload: {
           content: trimmedContent,
         },
@@ -106,7 +108,7 @@ export default function MemoSection() {
     }, AUTO_SAVE_DELAY)
 
     return () => clearTimeout(timer)
-  }, [user, content, memo, memoId, createMutation, updateMutation])
+  }, [user, content, memo, createMutation, updateMutation])
 
   const handleContentChange = (value: string) => {
     setContent(value.slice(0, MAX_LENGTH))
@@ -140,11 +142,13 @@ export default function MemoSection() {
   }
 
   const handleClear = async () => {
-    if (memoId) {
-      await deleteMutation.mutateAsync(memoId)
+    const targetMemoId = memo?.id ?? latestMemoIdRef.current
+
+    if (targetMemoId) {
+      await deleteMutation.mutateAsync(targetMemoId)
     }
 
-    setMemoId(null)
+    latestMemoIdRef.current = null
     setContent("")
     setIsClearOpen(false)
   }
@@ -154,7 +158,7 @@ export default function MemoSection() {
     updateMutation.isPending ||
     deleteMutation.isPending
 
-  const canClear = Boolean(memoId || content.trim())
+  const canClear = Boolean(memo?.id || content.trim())
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">

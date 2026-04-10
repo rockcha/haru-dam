@@ -7,6 +7,23 @@ import type { CreateDiaryInput, Diary, UpdateDiaryInput } from "@/types/diary"
 const supabase = createClient()
 
 const DIARIES_QUERY_KEY = ["diaries"] as const
+const GOLD_QUERY_KEY = ["gold"] as const
+
+const getSeoulDateString = () => {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+
+  const parts = formatter.formatToParts(new Date())
+  const year = parts.find((part) => part.type === "year")?.value ?? ""
+  const month = parts.find((part) => part.type === "month")?.value ?? ""
+  const day = parts.find((part) => part.type === "day")?.value ?? ""
+
+  return `${year}-${month}-${day}`
+}
 
 const getRequiredUser = async () => {
   const {
@@ -52,6 +69,47 @@ export const fetchDiaryById = async (id: string): Promise<Diary> => {
 
 export const createDiary = async (input: CreateDiaryInput): Promise<Diary> => {
   const user = await getRequiredUser()
+  const isTodayInSeoul = input.date === getSeoulDateString()
+
+  if (isTodayInSeoul) {
+    const { data: rpcData, error: rpcError } = await supabase.rpc(
+      "create_diary_and_give_gold",
+      {
+        p_title: input.title,
+        p_emotion: input.emotion,
+        p_content: input.content,
+        p_date: input.date,
+      }
+    )
+
+    if (rpcError) throw rpcError
+
+    const result = rpcData as {
+      success: boolean
+      message: string
+      diary_id?: string
+      gold_reward?: number
+    } | null
+
+    if (!result?.success) {
+      throw new Error(result?.message ?? "일기 작성에 실패했어요")
+    }
+
+    if (!result.diary_id) {
+      throw new Error("작성된 일기 정보를 확인할 수 없어요")
+    }
+
+    const { data: diaryData, error: diaryError } = await supabase
+      .from("diaries")
+      .select("*")
+      .eq("id", result.diary_id)
+      .eq("user_id", user.id)
+      .single()
+
+    if (diaryError) throw diaryError
+
+    return diaryData as Diary
+  }
 
   const { data, error } = await supabase
     .from("diaries")
@@ -129,9 +187,12 @@ export const useCreateDiary = () => {
     onSuccess: () => {
       toast.success("일기가 작성되었어요")
       queryClient.invalidateQueries({ queryKey: DIARIES_QUERY_KEY })
+      queryClient.invalidateQueries({ queryKey: GOLD_QUERY_KEY })
     },
-    onError: () => {
-      toast.error("일기 작성에 실패했어요")
+    onError: (error: unknown) => {
+      const message =
+        error instanceof Error ? error.message : "일기 작성에 실패했어요"
+      toast.error(message)
     },
   })
 }

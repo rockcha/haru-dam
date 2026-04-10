@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom"
 import Header from "./components/Header"
-import FloatingMenu from "@/components/FloatingMenu"
 import DeveloperNotesPopup from "@/components/DeveloperNotesPopup"
 import BottomNav from "@/components/BottomNav"
+import AttendanceCheckButton from "@/components/AttendanceCheckButton"
 const GlobalLayout = () => {
   return (
     <div className="app-intro-background mx-auto flex min-h-screen w-full max-w-7xl flex-col transition-colors duration-300">
@@ -12,7 +12,7 @@ const GlobalLayout = () => {
         <Outlet />
       </main>
       <DeveloperNotesPopup />
-      <FloatingMenu />
+      <AttendanceCheckButton />
       <BottomNav />
     </div>
   )

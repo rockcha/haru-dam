@@ -3,9 +3,12 @@ import TodayTaskSection from "@/components/TodayTaskSection"
 import { UpcomingSchedules } from "@/components/UpcomingSchedules"
 import BookmarkSection from "@/components/BookmarkSection"
 import MemoSection from "@/components/MemoSection"
+import TypingSection from "@/components/TypingSection"
+
 export function Home() {
   return (
     <div className="flex flex-col gap-2 p-4">
+      <TypingSection />
       <section>
         <UpcomingSchedules />
       </section>
