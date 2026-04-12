@@ -33,6 +33,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useSectionCollapse } from "@/hooks/useSectionCollapse"
 
 export function UpcomingSchedules() {
+  const { isCollapsed, toggleCollapsed } = useSectionCollapse("schedules")
   const { data: schedules = [], isLoading } = useSchedules({
     enabled: !isCollapsed,
   })
@@ -41,7 +42,6 @@ export function UpcomingSchedules() {
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
     null
   )
-  const { isCollapsed, toggleCollapsed } = useSectionCollapse("schedules")
   const navigate = useNavigate()
 
   useEffect(() => {
