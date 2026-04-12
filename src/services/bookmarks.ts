@@ -205,11 +205,12 @@ export const deleteBookmark = async (id: string): Promise<void> => {
    Bookmark Types Query Hooks
 ========================= */
 
-export const useBookmarkTypes = () => {
+export const useBookmarkTypes = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: bookmarkKeys.types(),
     queryFn: getBookmarkTypes,
     staleTime: 1000 * 60 * 60,
+    enabled: options?.enabled,
   })
 }
 
@@ -252,19 +253,21 @@ export const useDeleteBookmarkType = () => {
    Bookmarks Query Hooks
 ========================= */
 
-export const useBookmarks = () => {
+export const useBookmarks = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: bookmarkKeys.lists(),
     queryFn: getBookmarks,
     staleTime: 1000 * 60 * 60,
+    enabled: options?.enabled,
   })
 }
 
-export const useBookmarksWithType = () => {
+export const useBookmarksWithType = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: bookmarkKeys.withType(),
     queryFn: getBookmarksWithType,
     staleTime: 1000 * 60 * 60,
+    enabled: options?.enabled,
   })
 }
 

@@ -69,7 +69,9 @@ export default function TodayTaskSection() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterType>("all")
 
-  const { data: tasks = [], isLoading } = useTodayTasks()
+  const { data: tasks = [], isLoading } = useTodayTasks({
+    enabled: !isCollapsed,
+  })
   const createMutation = useCreateTodayTask()
   const updateMutation = useUpdateTodayTask()
   const deleteMutation = useDeleteTodayTask()

@@ -96,11 +96,12 @@ export const deleteMemo = async (id: string): Promise<string> => {
   return id
 }
 
-export const useMemos = () => {
+export const useMemos = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: MEMOS_QUERY_KEY,
     queryFn: getMemos,
     staleTime: 1000 * 60 * 60,
+    enabled: options?.enabled,
   })
 }
 

@@ -65,7 +65,9 @@ export default function DailyTaskSection() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterType>("all")
 
-  const { data: tasks = [], isLoading } = useDailyTasks()
+  const { data: tasks = [], isLoading } = useDailyTasks({
+    enabled: !isCollapsed,
+  })
   const createMutation = useCreateDailyTask()
   const updateMutation = useUpdateDailyTask()
   const deleteMutation = useDeleteDailyTask()

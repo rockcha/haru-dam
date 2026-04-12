@@ -162,11 +162,12 @@ function filterIncomplete(tasks: DailyTask[]) {
 /**
  * 모든 일일 과제 조회 훅
  */
-export function useDailyTasks() {
+export function useDailyTasks(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: DAILY_TASKS_QUERY_KEY,
     queryFn: fetchDailyTasks,
     staleTime: 1000 * 60 * 60,
+    enabled: options?.enabled,
   })
 }
 

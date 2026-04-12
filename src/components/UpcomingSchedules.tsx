@@ -33,7 +33,9 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useSectionCollapse } from "@/hooks/useSectionCollapse"
 
 export function UpcomingSchedules() {
-  const { data: schedules = [], isLoading } = useSchedules()
+  const { data: schedules = [], isLoading } = useSchedules({
+    enabled: !isCollapsed,
+  })
   const [now, setNow] = useState(() => new Date())
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(

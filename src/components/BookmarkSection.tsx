@@ -104,9 +104,13 @@ export default function BookmarkSection() {
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null)
   const [deletingType, setDeletingType] = useState<BookmarkType | null>(null)
 
-  const { data: bookmarks = [], isLoading } = useBookmarksWithType()
+  const { data: bookmarks = [], isLoading } = useBookmarksWithType({
+    enabled: !isCollapsed,
+  })
   const { data: bookmarkTypes = [], isLoading: isBookmarkTypesLoading } =
-    useBookmarkTypes()
+    useBookmarkTypes({
+      enabled: !isCollapsed,
+    })
   const isBookmarkLoading = isLoading || isBookmarkTypesLoading
 
   const createBookmarkMutation = useCreateBookmark()

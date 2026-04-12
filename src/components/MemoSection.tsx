@@ -51,7 +51,9 @@ export default function MemoSection() {
   const isHydratingRef = useRef(false)
   const latestMemoIdRef = useRef<string | null>(null)
 
-  const { data: memos = [], isLoading } = useMemos()
+  const { data: memos = [], isLoading } = useMemos({
+    enabled: !isCollapsed,
+  })
   const createMutation = useCreateMemo()
   const updateMutation = useUpdateMemo()
   const deleteMutation = useDeleteMemo()

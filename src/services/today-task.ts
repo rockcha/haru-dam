@@ -105,11 +105,12 @@ function sortByCreatedAtDesc(tasks: TodayTask[]) {
 
 // ============= React Query Hooks =============
 
-export function useTodayTasks() {
+export function useTodayTasks(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: getTodayTasksQueryKey(),
     queryFn: fetchTodayTasks,
     staleTime: 1000 * 60 * 60,
+    enabled: options?.enabled,
   })
 }
 
