@@ -6,6 +6,7 @@ import Diaries from "@/pages/Diaries"
 import DiaryNew from "@/pages/DiaryNew"
 import DiaryDetail from "@/pages/DiaryDetail"
 import MusicRoom from "@/pages/MusicRoom"
+import Aquarium from "@/pages/Aquarium"
 import Fishing from "@/pages/Fishing"
 import NotFound from "@/pages/NotFound"
 import Intro from "@/pages/Intro"
@@ -70,6 +71,14 @@ export const routes: RouteObject[] = [
         element: (
           <PrivateRoute>
             <MusicRoom />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/aquarium",
+        element: (
+          <PrivateRoute>
+            <Aquarium />
           </PrivateRoute>
         ),
       },

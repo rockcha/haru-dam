@@ -30,6 +30,7 @@ import {
   Headphones,
   CalendarDays,
   Coins,
+  Waves,
   Fish,
 } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
@@ -49,7 +50,8 @@ const NAV_ITEMS = [
   { label: "스케줄러", path: "/schedule", icon: CalendarDays },
   { label: "일기장", path: "/diaries", icon: BookOpen },
   { label: "뮤직룸", path: "/musicroom", icon: Headphones },
-  { label: "낚시터", path: "/fishing", icon: Fish },
+  { label: "아쿠아리움", path: "/aquarium", icon: Fish },
+  { label: "낚시터", path: "/fishing", icon: Waves },
 ]
 
 const Header = () => {
