@@ -126,9 +126,8 @@ export default function FishCodexDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full sm:w-auto">
-          <BookOpen className="h-4 w-4" />
-          해양도감
+        <Button variant="outline" className="w-full">
+          도감 확인하기
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[86vh] overflow-hidden sm:max-w-4xl">
