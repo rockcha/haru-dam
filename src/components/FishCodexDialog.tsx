@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { BookOpen, Fish, LockKeyhole, Waves } from "lucide-react"
+import { Fish, LockKeyhole, Waves } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -40,28 +40,28 @@ const RARITY_FILTERS = [
   {
     value: "normal",
     label: "일반",
-    description: "50%",
+    description: "포획 확률 50%",
     className: "border-zinc-200 bg-zinc-50 text-zinc-700",
     activeClassName: "ring-zinc-300",
   },
   {
     value: "rare",
     label: "희귀",
-    description: "10%",
+    description: "포획 확률 10%",
     className: "border-sky-200 bg-sky-50 text-sky-700",
     activeClassName: "ring-sky-300",
   },
   {
     value: "epic",
     label: "에픽",
-    description: "3%",
+    description: "포획 확률 3%",
     className: "border-violet-200 bg-violet-50 text-violet-700",
     activeClassName: "ring-violet-300",
   },
   {
     value: "legendary",
     label: "전설",
-    description: "0.5% 미만",
+    description: "포획 확률 0.5% 미만",
     className: "border-amber-200 bg-amber-50 text-amber-800",
     activeClassName: "ring-amber-300",
   },
